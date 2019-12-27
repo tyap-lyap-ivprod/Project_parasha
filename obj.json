@@ -1,0 +1,51 @@
+{
+    "table1":{
+        "name":"table",
+        "param": {
+            "is_link": false,
+            "solid": false,
+            "weight": 1.0
+        },
+        "action": [
+        	"bump",
+        	"put"
+        ]
+    },
+    "chair1":{
+        "name":"chair",
+        "param": {
+            "is_link": false,
+            "solid": false,
+            "weight": 1.0
+        },
+        "action": [
+        	"sit_up",
+        	"stand_up"
+        ]
+    },
+    "bochka":{
+        "name":"bochka",
+        "param": {
+            "is_link": false,
+            "solid": false,
+            "weight": 1.0,
+            "container": true
+        },
+        "action": [
+        	"put"
+        ]
+    },
+    "box1":{
+        "name":"box1",
+        "param": {
+            "is_link": false,
+            "solid": false,
+            "weight": 1.0,
+            "container": true,
+            "strength":5.2
+        },
+        "action": [
+        	"put"
+        ]
+    }
+}

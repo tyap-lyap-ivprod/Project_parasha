@@ -1,0 +1,32 @@
+{
+    "cat":{
+        "name":"cat1",
+        "param": {
+            "live": 3,
+            "can_speak": true,
+            "weight": 1.0
+        },
+        "action": [
+        	"speak",
+        	"fight"
+        ],
+        "dialog": {
+            "hi":"i kill you"
+        }
+    },
+    "pes":{
+        "name":"pes1",
+        "param": {
+            "live": 5,
+            "can_speak": true,
+            "weight": 1.0
+        },
+        "action": [
+            "speak",
+            "fight"
+        ],
+        "dialog": {
+            "hi":"i dont kill you"
+        }
+    }
+}

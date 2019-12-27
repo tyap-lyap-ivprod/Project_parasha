@@ -1,0 +1,32 @@
+{
+    "wall1":{
+        "name":"wall1",
+        "param": {
+            "is_link": false
+        },
+        "title": 9639,
+        "action": [
+        	"kick"
+        ]
+    },
+    "door1":{
+        "name":"door1",
+        "param": {
+            "is_link": true
+        },
+        "title": 128682,
+        "action": [
+            "kick"
+        ]
+    },
+    "floar":{
+        "name":"floar1",
+        "param": {
+            "is_link": false
+        },
+        "title": 128929,
+        "action": [
+            "goto"
+        ]
+    }
+}
