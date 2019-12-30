@@ -131,11 +131,16 @@ class map_cl:                                                         #клас�
     def _turn(self,vek,napr,max):
         if (napr == "LEFT"):
             pass
+    def _set_block(self,block):
+        for i in range(len(self.cell_list)):
+            for j in block:
+                if j not in self.cell_list[i].block:
+                    self.cell_list[i].block.append(int(j))
 
 
     def step(self):
         if len(self.raw_cell_list) > 0:                               #если есть не обработанные клетки
-            last_n = self.raw_cell_list.pop()                         #снимается адресс последний не обработанной клетки
+            last_n = self.raw_cell_list.pop(randint(0,len(self.raw_cell_list)-1))                         #снимается адресс последний не обработанной клетки
             #print(last_n)
             last_cell = self.cell_list[last_n]  
             len_block = 4 - len(last_cell.block)  
@@ -194,7 +199,49 @@ class map_cl:                                                         #клас�
                    # for i in range(last_cell.y-1,last_cell.y+1):
                     #    for j in range(last_cell.x-1,last_cell.x+1):
                      #       self.new_cell(j,i,title=cell_title[0])
+    def connect_two_point_line(self,point1_xy,point2_xy):
+        if   point1_xy[1] == point2_xy[1]:
+            if point2_xy[0] < point1_xy[0]:
+                step_in_range = -1
+            else:
+                step_in_range = 1
+            for i in range(point1_xy[0],point2_xy[0],step_in_range):
+                self.new_cell(i,point1_xy[1],title=cell_title[1],v=1)
+            print(1)
+        elif point1_xy[0] == point2_xy[0]:
+            if point2_xy[1] < point1_xy[1]:
+                step_in_range = -1
+            else:
+                step_in_range = 1
+            for i in range(point1_xy[1],point2_xy[1],step_in_range):
+                self.new_cell(point1_xy[0],i,title=cell_title[1],v=1)
+            print(point1_xy)
+            print(point2_xy)
 
+        self.new_cell(point2_xy[0],point2_xy[1],title=cell_title[1],v=1)
+
+    def connect_two_point(self,point1_xy,point2_xy):
+        if (point1_xy[0] != point2_xy[0] and
+            point1_xy[1] != point2_xy[1]):
+            print(1)
+
+            if randint(0,1):
+                self.connect_two_point_line([point1_xy[0],point1_xy[1]]
+                                           ,[point2_xy[0],point1_xy[1]])
+
+                self.connect_two_point_line([point2_xy[0],point1_xy[1]]
+                                           ,[point2_xy[0],point2_xy[1]])
+            else:
+
+                self.connect_two_point_line([point1_xy[0],point1_xy[1]]
+                                           ,[point1_xy[0],point2_xy[1]])
+
+                self.connect_two_point_line([point1_xy[0],point2_xy[1]]
+                                           ,[point2_xy[0],point2_xy[1]])
+
+        else:
+            print(2)
+            self.connect_two_point_line(point1_xy,point2_xy)
 def test_map():
     cl1 = map_cl('room')
     for i in range(100):
@@ -208,4 +255,10 @@ def test_map():
     
     cl1.print_array()
 
-test_map()
+def test_map1():
+    cl1 = map_cl('room')
+    cl1.connect_two_point([0,0],[randint(-15,15),randint(-15,15)
+        ])
+    cl1.print_array()
+
+test_map1()
