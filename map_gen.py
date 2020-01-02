@@ -1,18 +1,19 @@
 from random import randint
+import math
 
-cell_title = {                                                              #тайтлы для клетки
+cell_title = {                                                                  #тайтлы для клетки
     "wall" : "#",   0 : "■",            
     "floar": ' ',   1 : '□',
     "door" : '◁',   2 : '◁',
     4: ' '
 }
 
-class cell1:                                                          #класс клетки
+class cell1:                                                                    #класс клетки
     def __init__(self,x,y,vek=1,title=0):
         self.x = x
         self.y = y
         self.title = title
-        self.block = [3]                         #заблокировано движение [0,1,2,3]
+        self.block = [3]                                                        #заблокировано движение [0,1,2,3]
         self.vek = vek                                                 
         #напрвление создания клетки: 
         # 0 ; 
@@ -21,7 +22,7 @@ class cell1:                                                          #клас�
 
 
 
-class map_cl:                                                         #класс карты
+class map_cl:                                                                   #класс карты
     def __init__(self,type_of_map):
         self.type_of_map   = type_of_map
         self.cell_list     = [cell1(0,0,1,cell_title['door'])]
@@ -35,7 +36,7 @@ class map_cl:                                                         #клас�
             else:
                 return True
 
-    def new_cell(self,x,y,title,v=1):                                     #функция создания новой клетки в <<cell_list>>
+    def new_cell(self,x,y,title,v=1):                                           #функция создания новой клетки в <<cell_list>>
         if not self._if_emrt(x,y):
             return False
 
@@ -50,7 +51,7 @@ class map_cl:                                                         #клас�
 
         cell_array = []
 
-        for i in self.cell_list:                                           #узнаём размеры карты
+        for i in self.cell_list:                                                #узнаём размеры карты
             if i.x < min_x:
                 min_x = i.x
 
@@ -63,8 +64,8 @@ class map_cl:                                                         #клас�
             elif i.y > max_y:
                 max_y = i.y
 
-        vx = 0 - min_x                                                #смещение координат по x
-        vy = 0 - min_y                                                #смещение координат по y
+        vx = 0 - min_x                                                          #смещение координат по x
+        vy = 0 - min_y                                                          #смещение координат по y
 
         #print(max_x - min_x)
        # print(max_y - min_y)
@@ -104,7 +105,7 @@ class map_cl:                                                         #клас�
         elif vek == 3:
             return -1,0
 
-        elif vek == 0.5:                                              #зачем? Пусть будет
+        elif vek == 0.5:                                                        #зачем? Пусть будет
             return 1,-1
 
         elif vek == 1.5:
@@ -139,12 +140,14 @@ class map_cl:                                                         #клас�
 
 
     def step(self):
-        if len(self.raw_cell_list) > 0:                               #если есть не обработанные клетки
-            last_n = self.raw_cell_list.pop(randint(0,len(self.raw_cell_list)-1))                         #снимается адресс последний не обработанной клетки
+        if len(self.raw_cell_list) > 0:                                         #если есть не обработанные клетки
+            last_n = self.raw_cell_list.pop(randint(0,
+                        len(self.raw_cell_list)-1)
+                    )                                                           #снимается адресс последний не обработанной клетки
             #print(last_n)
             last_cell = self.cell_list[last_n]  
             len_block = 4 - len(last_cell.block)  
-            print("len = " + str(len(self.cell_list)))                    #в переменную <<last_cell>> передаётся необработанная клетка
+            print("len = " + str(len(self.cell_list)))                          #в переменную <<last_cell>> передаётся необработанная клетка
             if len_block < 4:
                 if last_cell.vek not in last_cell.block:
                     #print('f')
@@ -172,8 +175,8 @@ class map_cl:                                                         #клас�
                     vxplus+= last_cell.x
                     vyplus += last_cell.y
 
-                    print('- ' + str(vxmin) + ' ' + str(vymin) + ' ' + str(vek_min))
-                    print('+ ' + str(vxplus) + ' ' + str(vyplus) + ' ' + str(vek_plus))
+                    #print('- ' + str(vxmin) + ' ' + str(vymin) + ' ' + str(vek_min))
+                    #print('+ ' + str(vxplus) + ' ' + str(vyplus) + ' ' + str(vek_plus))
                     if (randint(0,4) > 3):
                         variant  = []
                         print("F")
@@ -242,6 +245,40 @@ class map_cl:                                                         #клас�
         else:
             print(2)
             self.connect_two_point_line(point1_xy,point2_xy)
+
+    def diagonal(self, p0, p1):
+        mainer = [p0.x, p0.y]
+        print("X: " + str(p0.x)+' '+str(p1.x))
+        print("Y: " + str(p0.y)+' '+str(p1.y))
+        while(mainer[0] != p1.x and mainer[1] != p1.y):
+            ax = p1.x - mainer[0]                                               #разница между 'x' строителя и второй точкой
+            ay = p1.y + mainer[1]                                               #разница между 'y' cтроителя и второй точкой
+            if(ax == ay == 0):
+                break
+
+            if(ax != 0):
+                v1 = math.fabs(ax)/ax
+
+            else:
+                v1 = [-1, 1][randint(0, 1)]
+
+            mainer[0] += v1
+            self.new_cell(int(mainer[0]),int(mainer[1]),v = v1+2,title=cell_title[1])
+            if(ay != 0):
+                v1 = math.fabs(ay)/ay
+
+            else:
+                v1 = [-1, 1][randint(0, 1)]
+
+            mainer[1] += v1
+            self.new_cell(int(mainer[0]),int(mainer[1]),v = v1+1,title=cell_title[1])
+
+    """
+    Тут тебе нужно как-то сделать так,
+    чтобы текущие координаты шахтера
+    записались на карту
+    """
+
 def test_map():
     cl1 = map_cl('room')
     for i in range(100):
@@ -261,4 +298,10 @@ def test_map1():
         ])
     cl1.print_array()
 
-test_map1()
+def test_map2():
+    cl1 = map_cl('room')
+    cl1.diagonal(cell1(0,0,1,cell_title[1]),cell1(5,-5,1,cell_title[1]))
+    cl1.print_array()
+
+
+test_map2()
