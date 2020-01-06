@@ -92,7 +92,7 @@ class map_cl:                                                                   
     
 
 
-    def _step_by_vector(self,vek):
+    def get_vektor(self,vek):
         if   vek == 0:
             return 0,-1
 
@@ -116,6 +116,10 @@ class map_cl:                                                                   
             
         elif vek == 3.5:
             return -1,-1
+
+    def step_by_vektor(self,vek):
+        x, y = self.get_vektor(vek)
+        return self.new_cell(x,y,cell_title[1],vek)
 
     def _vek_plus(self,vek,max_t=3):
         if vek == max_t:
@@ -152,7 +156,7 @@ class map_cl:                                                                   
                 if last_cell.vek not in last_cell.block:
                     #print('f')
                     #print(last_cell.vek)
-                    vx,vy = self._step_by_vector(last_cell.vek)
+                    vx,vy = self.get_vektor(last_cell.vek)
                     #print('vx = ' + str(vx) + '\nvy = '+ str(vy))
                     if self.new_cell(last_cell.x+vx, last_cell.y+vy,
                                      cell_title[1], last_cell.vek):
@@ -166,8 +170,8 @@ class map_cl:                                                                   
                     vek_min  = self._vek_min (last_cell.vek)
                     vek_plus = self._vek_plus(last_cell.vek)
                     
-                    vxmin,vymin   = self._step_by_vector(vek_min)
-                    vxplus,vyplus = self._step_by_vector(vek_plus)
+                    vxmin,vymin   = self.get_vektor(vek_min)
+                    vxplus,vyplus = self.get_vektor(vek_plus)
 
                     vxmin += last_cell.x
                     vymin += last_cell.y
@@ -246,38 +250,98 @@ class map_cl:                                                                   
             print(2)
             self.connect_two_point_line(point1_xy,point2_xy)
 
-    def diagonal(self, p0, p1):
+    def diagonal1(self, p0, p1):
         mainer = [p0.x, p0.y]
         print("X: " + str(p0.x)+' '+str(p1.x))
         print("Y: " + str(p0.y)+' '+str(p1.y))
-        while(mainer[0] != p1.x and mainer[1] != p1.y):
-            ax = p1.x - mainer[0]                                               #разница между 'x' строителя и второй точкой
-            ay = p1.y + mainer[1]                                               #разница между 'y' cтроителя и второй точкой
+        turn = 0
+        while not(mainer[0] == p1.x and mainer[1] == p1.y):
+            ax = p1.x - mainer[0]   
+            ay = p1.y + mainer[1]   
             if(ax == ay == 0):
                 break
 
-            if(ax != 0):
-                v1 = math.fabs(ax)/ax
+            if turn == 0:
+               
+                if(ax != 0):
+                    v1 = math.fabs(ax)/ax
+                    mainer[0] += v1
+                else:
+                    v1 = [-1, 1][randint(0, 1)]
+                    mainer[0] += v1
+
+                turn = 1
+                self.new_cell(int(mainer[0]),int(mainer[1]),
+                    v = v1+2,title=cell_title[1])
 
             else:
-                v1 = [-1, 1][randint(0, 1)]
+                    
+                if(ay != 0):
+                    v1 = math.fabs(ay)/ay
+                    mainer[1] += v1
 
-            mainer[0] += v1
-            self.new_cell(int(mainer[0]),int(mainer[1]),v = v1+2,title=cell_title[1])
-            if(ay != 0):
-                v1 = math.fabs(ay)/ay
+                else:
+                    v1 = [-1, 1][randint(0, 1)]
+                    mainer[1] += v1
 
+                turn = 0
+                self.new_cell(int(mainer[0]),int(mainer[1]),v = v1+1,title=cell_title[1])
+
+    def diagonal(self, p0, p1):
+        mainer = [p0.x, p0.y]
+        dxy = [math.fabs(p1.x - p0.x),math.fabs(p1.y - p0.y)]
+        print ('высота - '+str(dxy[0]) + 'ширина - '+str(dxy[1]))
+        if dxy[0] > dxy[1]:
+            small_d = dxy[1] - 1
+            big_d   = dxy[0] - 1
+            orent = 1
+        
+        else:
+            small_d = dxy[0] - 1
+            big_d   = dxy[1] - 1
+            orent = 0
+            
+        if p0.x < p1.x:
+            plinx = 1
+        else:
+            plinx = -1
+
+        if p0.y < p1.y:
+            pliny = 1
+        else:
+            pliny = -1
+
+        koll_step = big_d / small_d
+        koll_pere = big_d / koll_step
+        dobav = 0
+        while not(koll_step.is_integer()):
+
+            big_d -= 1
+            koll_step = big_d / small_d
+            koll_pere = big_d / koll_step
+            dobav += 1
+
+        matr = []               
+        for i in range(int(koll_pere)):
+            for j in range(int(koll_step)):
+                mainer[0]+=plinx
+                matr.append([mainer[0], mainer[1]])
+
+            mainer[1]+=pliny
+            matr.append([mainer[0], mainer[1]])
+            #self.new_cell(mainer[0], mainer[1], title=cell_title[1],v=1)
+
+        for i in range(dobav):
+                mainer[0]+=plinx
+                matr.append([mainer[0], mainer[1]])
+                #self.new_cell(mainer[0], mainer[1], title=cell_title[1],v=1)
+
+        for i in matr:
+            if orent == 0:
+                self.new_cell(i[0], i[1], title=cell_title[1],v=1)
             else:
-                v1 = [-1, 1][randint(0, 1)]
+                self.new_cell(i[1], i[0], title=cell_title[1],v=1)
 
-            mainer[1] += v1
-            self.new_cell(int(mainer[0]),int(mainer[1]),v = v1+1,title=cell_title[1])
-
-    """
-    Тут тебе нужно как-то сделать так,
-    чтобы текущие координаты шахтера
-    записались на карту
-    """
 
 def test_map():
     cl1 = map_cl('room')
@@ -298,10 +362,11 @@ def test_map1():
         ])
     cl1.print_array()
 
-def test_map2():
+def test_map2(x,y):
     cl1 = map_cl('room')
-    cl1.diagonal(cell1(0,0,1,cell_title[1]),cell1(5,-5,1,cell_title[1]))
+    cl1.diagonal(cell1(0,0,1,cell_title[1]),cell1(x,y,1,cell_title[1]))
     cl1.print_array()
 
-
-test_map2()
+test_map2(4,15)
+test_map2(4,16)
+test_map2(17,4)
