@@ -19,13 +19,17 @@ class cell1:                                                                    
         # 0 ; 
         #3 1; 
         # 2 ; 
+    def replace_title(self,new_title):
+        self.title = new_title
 
-
+    def _set_block(self,block):
+        if block not in self.block:
+            self.block.append(i)
 
 class map_cl:                                                                   #класс карты
     def __init__(self,type_of_map):
         self.type_of_map   = type_of_map
-        self.cell_list     = [cell1(0,0,1,cell_title['door'])]
+        self.cell_list     = []
         self.cell_array    = []
         self.raw_cell_list = [0]
 
@@ -33,15 +37,23 @@ class map_cl:                                                                   
         for i in self.cell_list:
             if x == i.x and y == i.y:
                 return False
-            else:
-                return True
+   #     print("a1")
+        return True
 
     def new_cell(self,x,y,title,v=1):                                           #функция создания новой клетки в <<cell_list>>
         if not self._if_emrt(x,y):
+            print("false" + str(x)+ " "+ str(y))
             return False
+
 
         self.cell_list.append(cell1(x,y,title=title,vek=v))
         return True
+
+    def find_xy(self,x,y):
+        for i in range(len(self.cell_list)):
+            if ((self.cell_list[i].x == x) and 
+                (self.cell_list[i].y == y)):
+                    return i
 
     def _build_cell_array(self):
         min_x = 0
@@ -206,54 +218,63 @@ class map_cl:                                                                   
                    # for i in range(last_cell.y-1,last_cell.y+1):
                     #    for j in range(last_cell.x-1,last_cell.x+1):
                      #       self.new_cell(j,i,title=cell_title[0])
-    def connect_two_point_line(self,point1_xy,point2_xy):
+    def _connect_two_point_line(self,point1_xy,point2_xy):
         if   point1_xy[1] == point2_xy[1]:
             if point2_xy[0] < point1_xy[0]:
                 step_in_range = -1
+
             else:
                 step_in_range = 1
+
             for i in range(point1_xy[0],point2_xy[0],step_in_range):
                 self.new_cell(i,point1_xy[1],title=cell_title[1],v=1)
+
             print(1)
         elif point1_xy[0] == point2_xy[0]:
             if point2_xy[1] < point1_xy[1]:
                 step_in_range = -1
+
             else:
                 step_in_range = 1
+
             for i in range(point1_xy[1],point2_xy[1],step_in_range):
                 self.new_cell(point1_xy[0],i,title=cell_title[1],v=1)
+
             print(point1_xy)
             print(point2_xy)
 
         self.new_cell(point2_xy[0],point2_xy[1],title=cell_title[1],v=1)
 
-    def connect_two_point(self,point1_xy,point2_xy):
+    def _connect_two_point(self,point1_xy,point2_xy,rand=2):
         if (point1_xy[0] != point2_xy[0] and
             point1_xy[1] != point2_xy[1]):
             print(1)
+            if rand not in [0,1]:
+                rand == randint(0,1)
 
-            if randint(0,1):
-                self.connect_two_point_line([point1_xy[0],point1_xy[1]]
+            if rand:
+                self._connect_two_point_line([point1_xy[0],point1_xy[1]]
                                            ,[point2_xy[0],point1_xy[1]])
 
-                self.connect_two_point_line([point2_xy[0],point1_xy[1]]
+                self._connect_two_point_line([point2_xy[0],point1_xy[1]]
                                            ,[point2_xy[0],point2_xy[1]])
             else:
 
-                self.connect_two_point_line([point1_xy[0],point1_xy[1]]
+                self._connect_two_point_line([point1_xy[0],point1_xy[1]]
                                            ,[point1_xy[0],point2_xy[1]])
 
-                self.connect_two_point_line([point1_xy[0],point2_xy[1]]
+                self._connect_two_point_line([point1_xy[0],point2_xy[1]]
                                            ,[point2_xy[0],point2_xy[1]])
 
         else:
             print(2)
-            self.connect_two_point_line(point1_xy,point2_xy)
+            self._connect_two_point_line(point1_xy,point2_xy)
 
-    def diagonal1(self, p0, p1):
+
+    def _tunnels(self, p0, p1):
         mainer = [p0.x, p0.y]
-        print("X: " + str(p0.x)+' '+str(p1.x))
-        print("Y: " + str(p0.y)+' '+str(p1.y))
+        #print("X: " + str(p0.x)+' '+str(p1.x))
+        #print("Y: " + str(p0.y)+' '+str(p1.y))
         turn = 0
         while not(mainer[0] == p1.x and mainer[1] == p1.y):
             ax = p1.x - mainer[0]   
@@ -266,6 +287,7 @@ class map_cl:                                                                   
                 if(ax != 0):
                     v1 = math.fabs(ax)/ax
                     mainer[0] += v1
+
                 else:
                     v1 = [-1, 1][randint(0, 1)]
                     mainer[0] += v1
@@ -287,19 +309,19 @@ class map_cl:                                                                   
                 turn = 0
                 self.new_cell(int(mainer[0]),int(mainer[1]),v = v1+1,title=cell_title[1])
 
-    def diagonal(self, p0, p1):
+    def _diagonal(self, p0, p1):
         mainer = [p0.x, p0.y]
         dxy = [math.fabs(p1.x - p0.x),math.fabs(p1.y - p0.y)]
-        print ('высота - '+str(dxy[0]) + 'ширина - '+str(dxy[1]))
+        #print ('высота - '+str(dxy[0]) + 'ширина - '+str(dxy[1]))
         if dxy[0] > dxy[1]:
             small_d = dxy[1] - 1
             big_d   = dxy[0] - 1
-            orent = 1
+            orent = 0
         
         else:
             small_d = dxy[0] - 1
             big_d   = dxy[1] - 1
-            orent = 0
+            orent = 1
             
         if p0.x < p1.x:
             plinx = 1
@@ -315,7 +337,6 @@ class map_cl:                                                                   
         koll_pere = big_d / koll_step
         dobav = 0
         while not(koll_step.is_integer()):
-
             big_d -= 1
             koll_step = big_d / small_d
             koll_pere = big_d / koll_step
@@ -339,9 +360,49 @@ class map_cl:                                                                   
         for i in matr:
             if orent == 0:
                 self.new_cell(i[0], i[1], title=cell_title[1],v=1)
+
             else:
                 self.new_cell(i[1], i[0], title=cell_title[1],v=1)
 
+    def door_xy(self,doors,wid,hid):
+        return_doors = []
+        for i in range(len(doors)):
+            for j in doors[i]:
+                if i==0:
+                    return_doors.append([int(j),0,i])
+                elif i==1:
+                    return_doors.append([wid - 1, int(j),i])
+
+                elif i==2:
+                    return_doors.append([int(j), hid - 1,i])
+                   
+                elif i==3:
+                    return_doors.append([0,int(j),i])
+        return return_doors
+
+
+    def _room_gen(self, wid, hid, doors=[], start={'x':0,'y':0}):
+        for i in range(wid):
+            for j in range(hid):
+                if ((i==0 or j==0) or 
+                    (i==wid-1 or j==hid-1)):
+                    title1 = cell_title[0]
+
+                else:
+                    title1 = cell_title[1]
+
+                if self._if_emrt(start["x"]+i,start["y"]+j):
+                    self.new_cell(start["x"]+i,start["y"]+j, title=title1,v=1)
+                else:
+         #           print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                    pass
+
+        _doors_xy = self.door_xy(doors,wid,hid)
+        print(_doors_xy)
+        for i in _doors_xy:
+            self.cell_list[self.find_xy(i[0],i[1])].replace_title(cell_title[2])
+
+            
 
 def test_map():
     cl1 = map_cl('room')
@@ -358,15 +419,50 @@ def test_map():
 
 def test_map1():
     cl1 = map_cl('room')
-    cl1.connect_two_point([0,0],[randint(-15,15),randint(-15,15)
-        ])
+    cl1._connect_two_point([0,0],[4,16],0)
+    cl1._connect_two_point([1,1],[4,15],0)
     cl1.print_array()
 
 def test_map2(x,y):
     cl1 = map_cl('room')
-    cl1.diagonal(cell1(0,0,1,cell_title[1]),cell1(x,y,1,cell_title[1]))
+    cl1._diagonal(cell1(0,0,1,cell_title[1]),
+                 cell1(x,y,1,cell_title[1]))
     cl1.print_array()
 
-test_map2(4,15)
+def test_map3(x,y):
+    cl1 = map_cl('room')
+    cl1._tunnels(cell1(0,0,1,cell_title[1]),cell1(x,y,1,cell_title[1]))
+    cl1.print_array()
+
+def test_map4(x,y):
+    cl1 = map_cl('room')
+    doors = [[],
+             [5],
+             [],
+             [2]]
+    cl1._room_gen(x,y,doors=doors)
+    print(len(cl1.cell_list))
+    cl1.print_array()
+
+
+'''print("Первый тест")
+test_map1()
+print("Второй тест")
 test_map2(4,16)
-test_map2(17,4)
+print("Третий тест")
+test_map3(4,16)'''
+
+def create_partmap(wid=20,hid=20,doors=[[],[5],[],[2]]):
+    cl1 = map_cl('room')
+    for i in cl1.door_xy(doors,wid,hid):
+        print(i)
+        cl1.new_cell(i[0],i[1],v=i[2],title=cell_title[2])
+        #print(cl1.cell_list[cl1.find_xy(i[0],i[1])].title)
+    cl1._room_gen(wid,hid)
+    for i in cl1.cell_list:
+    #    print(i.title + " " + str(i.x) + " " + str(i.y))
+        pass
+    cl1.print_array()
+    return cl1
+
+cl1 = create_partmap()
