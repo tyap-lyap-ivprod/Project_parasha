@@ -37,12 +37,12 @@ class map_cl:                                                                   
         for i in self.cell_list:
             if x == i.x and y == i.y:
                 return False
-   #     print("a1")
+   #     #V1 print("a1")
         return True
 
     def new_cell(self,x,y,title,v=1):                                           #функция создания новой клетки в <<cell_list>>
         if not self._if_emrt(x,y):
-            print("false" + str(x)+ " "+ str(y))
+           #V1 print("false" + str(x)+ " "+ str(y))
             return False
 
 
@@ -163,7 +163,7 @@ class map_cl:                                                                   
             #print(last_n)
             last_cell = self.cell_list[last_n]  
             len_block = 4 - len(last_cell.block)  
-            print("len = " + str(len(self.cell_list)))                          #в переменную <<last_cell>> передаётся необработанная клетка
+            #V1 print("len = " + str(len(self.cell_list)))                          #в переменную <<last_cell>> передаётся необработанная клетка
             if len_block < 4:
                 if last_cell.vek not in last_cell.block:
                     #print('f')
@@ -195,7 +195,7 @@ class map_cl:                                                                   
                     #print('+ ' + str(vxplus) + ' ' + str(vyplus) + ' ' + str(vek_plus))
                     if (randint(0,4) > 3):
                         variant  = []
-                        print("F")
+                        #V1 print("F")
                         
                         if (self._if_emrt(vxmin, vymin)   
                             and (vek_min not in last_cell.block)):
@@ -218,8 +218,10 @@ class map_cl:                                                                   
                    # for i in range(last_cell.y-1,last_cell.y+1):
                     #    for j in range(last_cell.x-1,last_cell.x+1):
                      #       self.new_cell(j,i,title=cell_title[0])
-    def _connect_two_point_line(self,point1_xy,point2_xy):
-        if   point1_xy[1] == point2_xy[1]:
+    def _line(self,point1_xy,point2_xy):
+        #V1 print("ASUKA" + str(point1_xy))
+        #V! print("BSUKA" + str(point2_xy))
+        if point1_xy[1] == point2_xy[1]:
             if point2_xy[0] < point1_xy[0]:
                 step_in_range = -1
 
@@ -229,7 +231,7 @@ class map_cl:                                                                   
             for i in range(point1_xy[0],point2_xy[0],step_in_range):
                 self.new_cell(i,point1_xy[1],title=cell_title[1],v=1)
 
-            print(1)
+            #V1 print(1)
         elif point1_xy[0] == point2_xy[0]:
             if point2_xy[1] < point1_xy[1]:
                 step_in_range = -1
@@ -240,40 +242,82 @@ class map_cl:                                                                   
             for i in range(point1_xy[1],point2_xy[1],step_in_range):
                 self.new_cell(point1_xy[0],i,title=cell_title[1],v=1)
 
-            print(point1_xy)
-            print(point2_xy)
+            #V1 print(point1_xy)
+            #V1 print(point2_xy)
 
         self.new_cell(point2_xy[0],point2_xy[1],title=cell_title[1],v=1)
 
-    def _connect_two_point(self,point1_xy,point2_xy,rand=2):
+    def _connect_corner(self,point1_xy,point2_xy,rand=2):
         if (point1_xy[0] != point2_xy[0] and
             point1_xy[1] != point2_xy[1]):
-            print(1)
+            #V1 print(1)
             if rand not in [0,1]:
                 rand == randint(0,1)
 
             if rand:
-                self._connect_two_point_line([point1_xy[0],point1_xy[1]]
-                                           ,[point2_xy[0],point1_xy[1]])
+                self._line([point1_xy[0],point1_xy[1]]
+                          ,[point2_xy[0],point1_xy[1]])
 
-                self._connect_two_point_line([point2_xy[0],point1_xy[1]]
-                                           ,[point2_xy[0],point2_xy[1]])
+                self._line([point2_xy[0],point1_xy[1]]
+                          ,[point2_xy[0],point2_xy[1]])
             else:
 
-                self._connect_two_point_line([point1_xy[0],point1_xy[1]]
-                                           ,[point1_xy[0],point2_xy[1]])
+                self._line([point1_xy[0],point1_xy[1]]
+                          ,[point1_xy[0],point2_xy[1]])
 
-                self._connect_two_point_line([point1_xy[0],point2_xy[1]]
-                                           ,[point2_xy[0],point2_xy[1]])
+                self._line([point1_xy[0],point2_xy[1]]
+                          ,[point2_xy[0],point2_xy[1]])
 
         else:
-            print(2)
-            self._connect_two_point_line(point1_xy,point2_xy)
+            #V1 print(2)
+            self._line(point1_xy,point2_xy)
 
+    def _connect_strench(self,point1_xy,point2_xy,vek=1):
+
+        ax = point2_xy[0] - point1_xy[0]
+        ay = point2_xy[1] - point1_xy[1]
+        #V1 print(ay)
+        if ax == 0 or ay == 0:
+            self._line(point1_xy,point2_xy)
+            return
+
+        vx = ax / math.fabs(ax)
+        vy = ay / math.fabs(ay)
+
+        medium_point = [math.floor(point1_xy[0] + ax/2),
+                        math.floor(point1_xy[1] + ay/2)]
+        #V1 print("Cредняя точка по X = " + str(math.floor(point1_xy[0] + ax/2)))
+        #V1 print("Cредняя точка по Y = " + str(math.floor(point1_xy[1] + ay/2)))
+
+        if (vek == 1):
+            self._line( point1_xy,
+                       [medium_point[0], point1_xy[1]])
+            self._line([medium_point[0], point1_xy[1]],
+                       [medium_point[0], point2_xy[1]])
+            self._line([medium_point[0], point2_xy[1]],
+                        point2_xy)
+
+        else:
+            self._line( point1_xy,
+                       [point1_xy[0], medium_point[1]])
+            #V1 print("Строитель в точке " + str(point1_xy[0]) + " "  + str(medium_point[1]))
+
+            ##V1 print("Точка вторая" + str(point2_xy))
+            self._line([point1_xy[0], medium_point[1]],
+                       [point2_xy[0], medium_point[1]])
+
+            #V1 print("Строитель в точке " + str(point2_xy[0]) + " "  + str(medium_point[1]))
+
+            self._line([point2_xy[0], medium_point[1]],
+                        point2_xy)
+
+
+    def _not_null_wall(self,doors):
+        return 0
 
     def _tunnels(self, p0, p1):
         mainer = [p0.x, p0.y]
-        #print("X: " + str(p0.x)+' '+str(p1.x))
+        ##V1 print("X: " + str(p0.x)+' '+str(p1.x))
         #print("Y: " + str(p0.y)+' '+str(p1.y))
         turn = 0
         while not(mainer[0] == p1.x and mainer[1] == p1.y):
@@ -365,20 +409,31 @@ class map_cl:                                                                   
                 self.new_cell(i[1], i[0], title=cell_title[1],v=1)
 
     def door_xy(self,doors,wid,hid):
-        return_doors = []
+        return_doors = [[],[],[],[]]
         for i in range(len(doors)):
             for j in doors[i]:
-                if i==0:
-                    return_doors.append([int(j),0,i])
-                elif i==1:
-                    return_doors.append([wid - 1, int(j),i])
-
-                elif i==2:
-                    return_doors.append([int(j), hid - 1,i])
-                   
-                elif i==3:
-                    return_doors.append([0,int(j),i])
+                if i == 0:
+                    return_doors[0].append([int(j),0,i])
+                if i == 1:
+                    return_doors[1].append([wid,int(j),i])
+                if i == 2:
+                    return_doors[2].append([int(j),hid,i])
+                if i == 3:
+                    return_doors[3].append([0,int(j),i])
         return return_doors
+    def _cavity_gen(self,point1_xy,point2_xy):
+        ax = int(point2_xy[0] - point1_xy[0])
+        ay = int(point2_xy[1] - point1_xy[1])
+        vx = int(ax / math.fabs(ax))
+        vy = int(ay / math.fabs(ay))
+        ax = math.fabs(ax)
+        ay = math.fabs(ay)
+
+        for i in range(point1_xy[0],point2_xy[0]+1,vx):
+            for j in range(point1_xy[1],point2_xy[1]+1,vy):
+                print(str(i) + " " + str(j))
+                self.new_cell(i,j,title=cell_title[1],v=1)
+
 
 
     def _room_gen(self, wid, hid, doors=[], start={'x':0,'y':0}):
@@ -394,15 +449,31 @@ class map_cl:                                                                   
                 if self._if_emrt(start["x"]+i,start["y"]+j):
                     self.new_cell(start["x"]+i,start["y"]+j, title=title1,v=1)
                 else:
-         #           print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                    #print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     pass
 
         _doors_xy = self.door_xy(doors,wid,hid)
-        print(_doors_xy)
+        #V1 print(_doors_xy)
         for i in _doors_xy:
             self.cell_list[self.find_xy(i[0],i[1])].replace_title(cell_title[2])
 
-            
+    def _connect_room(self,doors):
+        doors_all = []
+        kol_doors = 0 
+        for i in doors:
+            for j in i:
+                doors_all.append(j)
+                kol_doors +=1
+
+        kol_connection = kol_doors + math.floor(kol_doors * randint(0,4)/2)-1
+
+        for i in range(kol_doors):
+            #V1 print("Дверь:" + str(doors_all[i]))
+            pass
+
+    def _gen_point(self, kol_point, point_min, point_max):
+        for i in range(kol_point):
+            self._room_gen()
 
 def test_map():
     cl1 = map_cl('room')
@@ -419,8 +490,8 @@ def test_map():
 
 def test_map1():
     cl1 = map_cl('room')
-    cl1._connect_two_point([0,0],[4,16],0)
-    cl1._connect_two_point([1,1],[4,15],0)
+    cl1._connect_corner([0,0],[4,16],0)
+    cl1._connect_corner([1,1],[4,15],0)
     cl1.print_array()
 
 def test_map2(x,y):
@@ -441,7 +512,7 @@ def test_map4(x,y):
              [],
              [2]]
     cl1._room_gen(x,y,doors=doors)
-    print(len(cl1.cell_list))
+    #V1 print(len(cl1.cell_list))
     cl1.print_array()
 
 
@@ -452,16 +523,35 @@ test_map2(4,16)
 print("Третий тест")
 test_map3(4,16)'''
 
-def create_partmap(wid=20,hid=20,doors=[[],[5],[],[2]]):
+def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[8]]):
     cl1 = map_cl('room')
-    for i in cl1.door_xy(doors,wid,hid):
-        print(i)
-        cl1.new_cell(i[0],i[1],v=i[2],title=cell_title[2])
-        #print(cl1.cell_list[cl1.find_xy(i[0],i[1])].title)
-    cl1._room_gen(wid,hid)
+    l1 = cl1.door_xy(doors,wid,hid)
+    for i in l1:
+        for j in i:
+            #V1 print("aaaaa " + str(j))
+            cl1.new_cell(j[0],j[1],v=j[2],title=cell_title[2])
+            #print(cl1.cell_list[cl1.find_xy(i[0],i[1])].title)
+
+    #V1 print(l1)
+    cl1._connect_strench(l1[0][0],l1[2][0],0)
+    cl1._connect_room(l1)
     for i in cl1.cell_list:
     #    print(i.title + " " + str(i.x) + " " + str(i.y))
         pass
+
+    cav_list = []
+
+    for i in range(6):
+        x1 = randint(2,wid-2)
+        y1 = randint(2,hid-2)
+        cl1.new_cell(x1,y1,title=cell_title[1],v=1)
+        cav_list.append(cl1.cell_list[-1])
+
+        cl1._cavity_gen([x1-1,y1-1],[x1+1,y1+1])
+
+        cl1._diagonal(cav_list[-1],)
+
+
     cl1.print_array()
     return cl1
 
