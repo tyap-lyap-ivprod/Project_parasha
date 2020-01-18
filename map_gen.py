@@ -9,7 +9,7 @@ cell_title = {                                                                  
 }
 
 class cell1:                                                                    #класс клетки
-    def __init__(self,x,y,vek=1,title=0):
+    def __init__(self,x,y,vek=1,title=2):
         self.x = x
         self.y = y
         self.title = title
@@ -37,7 +37,6 @@ class map_cl:                                                                   
         for i in self.cell_list:
             if x == i.x and y == i.y:
                 return False
-   #     #V1 print("a1")
         return True
 
     def new_cell(self,x,y,title,v=1):                                           #функция создания новой клетки в <<cell_list>>
@@ -48,6 +47,9 @@ class map_cl:                                                                   
 
         self.cell_list.append(cell1(x,y,title=title,vek=v))
         return True
+
+    def append_cell(self,cell):
+        self.cell_list.append(cell)
 
     def find_xy(self,x,y):
         for i in range(len(self.cell_list)):
@@ -98,11 +100,9 @@ class map_cl:                                                                   
         for i in self.cell_array:
             buf=''
             for j in i:
-                buf+=str(j.title)
+                buf+=str(j.title)+" "
             
             print(buf)
-    
-
 
     def get_vektor(self,vek):
         if   vek == 0:
@@ -148,22 +148,22 @@ class map_cl:                                                                   
     def _turn(self,vek,napr,max):
         if (napr == "LEFT"):
             pass
+
     def _set_block(self,block):
         for i in range(len(self.cell_list)):
             for j in block:
                 if j not in self.cell_list[i].block:
                     self.cell_list[i].block.append(int(j))
 
-
     def step(self):
         if len(self.raw_cell_list) > 0:                                         #если есть не обработанные клетки
+            #снимается адресс последний не обработанной клетки
             last_n = self.raw_cell_list.pop(randint(0,
                         len(self.raw_cell_list)-1)
-                    )                                                           #снимается адресс последний не обработанной клетки
-            #print(last_n)
+                    )
+            #в переменную <<last_cell>> передаётся необработанная клетка
             last_cell = self.cell_list[last_n]  
             len_block = 4 - len(last_cell.block)  
-            #V1 print("len = " + str(len(self.cell_list)))                          #в переменную <<last_cell>> передаётся необработанная клетка
             if len_block < 4:
                 if last_cell.vek not in last_cell.block:
                     #print('f')
@@ -191,8 +191,6 @@ class map_cl:                                                                   
                     vxplus+= last_cell.x
                     vyplus += last_cell.y
 
-                    #print('- ' + str(vxmin) + ' ' + str(vymin) + ' ' + str(vek_min))
-                    #print('+ ' + str(vxplus) + ' ' + str(vyplus) + ' ' + str(vek_plus))
                     if (randint(0,4) > 3):
                         variant  = []
                         #V1 print("F")
@@ -215,9 +213,6 @@ class map_cl:                                                                   
                                 self._vek_min(self._vek_min(cell_xy[-1]))
                                 ]
 
-                   # for i in range(last_cell.y-1,last_cell.y+1):
-                    #    for j in range(last_cell.x-1,last_cell.x+1):
-                     #       self.new_cell(j,i,title=cell_title[0])
     def _line(self,point1,point2):
         #V1 print("ASUKA" + str(point1))
         #V! print("BSUKA" + str(point2))
@@ -308,9 +303,13 @@ class map_cl:                                                                   
             self._line(cell1(point2.x, medium_point.y),
                        point2)
 
-
     def _not_null_wall(self,doors):
-        return 0
+        buf = []
+        for i in renge(len(doors)):
+            if len(doors[i]) == 0:
+                buf.append(i)
+
+        return buf
 
     def _tunnels(self, point1, point2):
         mainer = cell1(point1.x, point1.y)
@@ -348,12 +347,17 @@ class map_cl:                                                                   
                     mainer.y += v1
 
                 turn = 0
-                self.new_cell(int(mainer.x),int(mainer.y),v = v1+1,title=cell_title[1])
+                self.new_cell(int(mainer.x),int(mainer.y),
+                              v = v1+1,title=cell_title[1])
 
     def _diagonal(self, point1, point2):
         mainer = cell1(point1.x, point1.y)
         dxy = [math.fabs(point2.x - point1.x),math.fabs(point2.y - point1.y)]
         #print ('высота - '+str(dxy[0]) + 'ширина - '+str(dxy[1]))
+        if 0 in dxy or 1 in dxy:
+            self._connect_corner(point1,point2)
+            return 0
+
         if dxy[0] > dxy[1]:
             small_d = dxy[1] - 1
             big_d   = dxy[0] - 1
@@ -389,14 +393,14 @@ class map_cl:                                                                   
         for i in range(int(koll_pere)):
             for j in range(int(koll_step)):
                 mainer.x+=plinx
-                matr.append([mainer.x, mainer.y])
+                matr.append(cell1(mainer.x, mainer.y))
 
-            mainer[1]+=pliny
-            matr.append([mainer.x, mainer.y])
+            mainer.y+=pliny
+            matr.append(cell1(mainer.x, mainer.y))
 
         for i in range(dobav):
                 mainer.x+=plinx
-                matr.append([mainer.x, mainer.y])
+                matr.append(cell1(mainer.x, mainer.y))
 
         for i in matr:
             if orent == 0:
@@ -405,20 +409,29 @@ class map_cl:                                                                   
             else:
                 self.new_cell(i.y, i.x, title=cell_title[1],v=1)
 
-    def door_xy(self,doors,wid,hid):
+    def door_xy(self,raw_doors,wid,hid):                                        #вывод координат дверей
         return_doors = [[],[],[],[]]
-        for i in range(len(doors)):
-            for j in doors[i]:
+        for i in range(len(raw_doors)):
+            for j in raw_doors[i]:
                 if i == 0:
-                    return_doors[0].append(cell1(int(j),0,i))
+                    return_doors[0].append(cell1(int(j),i,cell_title[2]))
                 if i == 1:
-                    return_doors[1].append(cell1(wid,int(j),i))
+                    return_doors[1].append(cell1(wid,int(j),i,cell_title[2]))
                 if i == 2:
-                    return_doors[2].append(cell1(int(j),hid,i))
+                    return_doors[2].append(cell1(int(j),hid,i,cell_title[2]))
                 if i == 3:
-                    return_doors[3].append(cell1(0,int(j),i))
+                    return_doors[3].append(cell1(0,int(j),i,cell_title[2]))
 
         return return_doors
+
+    def door_list(self,doors):                                                  #вывод списка дверей
+        buf_list = []   #тут храним список для выдачи
+        for i in doors:
+            for j in i:
+                #print(j.x)
+                buf_list.append(j)
+
+        return buf_list
 
     def _cavity_gen(self,point1,point2):
         ax = int(point2.x - point1.x)
@@ -433,9 +446,7 @@ class map_cl:                                                                   
                 #print(str(i) + " " + str(j))
                 self.new_cell(i,j,title=cell_title[1],v=1)
 
-
-
-    def _room_gen(self, wid, hid, doors=[], start={'x':0,'y':0}):
+    def _room_gen(self, wid, hid, doors=[], start=cell1(0,0)):
         for i in range(wid):
             for j in range(hid):
                 if ((i==0 or j==0) or 
@@ -525,31 +536,36 @@ test_map3(4,16)'''
 def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[8]]):
     cl1 = map_cl('room')
     l1 = cl1.door_xy(doors,wid,hid)
-    for i in l1:
-        for j in i:
-            #V1 print("aaaaa " + str(j))
-            cl1.new_cell(j.x,j.y,v=j.vek,title=cell_title[2])
-            #print(cl1.cell_list[cl1.find_xy(i[0],i[1])].title)
+    l2 = cl1.door_list(l1)
+
+    fun_gen = cl1._connect_strench #соедиение "растяжками" и отрезками
+    #fun_gen = cl1._connect_corner #соедиение углами и отрезками
+
+    for i in l2:
+            cl1.append_cell(i)
 
     #V1 print(l1)
-    cl1._connect_strench(l1[0][0],l1[2][0],0)
+    for i in range(1,len(l2)):
+        fun_gen(l2[i-1],l2[i])
     cl1._connect_room(l1)
     for i in cl1.cell_list:
     #    print(i.title + " " + str(i.x) + " " + str(i.y))
         pass
 
-    cav_list = []
+    cav_list = [l2[0]]
 
-    for i in range(6):
+    for i in range(3):
         x1 = randint(2,wid-2)
         y1 = randint(2,hid-2)
-        cl1.new_cell(x1,y1,title=cell_title[1],v=1)
-        cav_list.append(cl1.cell_list[-1])
-
+        buf_cell = cell1(x1,y1,title=cell_title[1],vek=1)
+        cav_list.append(buf_cell)
+        cl1.append_cell(buf_cell)
         cl1._cavity_gen(cell1(x1-1,y1-1),cell1(x1+1,y1+1))
 
+        fun_gen(cav_list[-2],cav_list[-1])
 
     cl1.print_array()
     return cl1
 
-cl1 = create_partmap()
+for i in range(1):
+    cl1 = create_partmap()
