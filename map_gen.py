@@ -207,7 +207,7 @@ class map_cl:                                                                   
 
                         if len(variant)>0:
                             cell_xy = variant[randint(0,len(variant)-1)]
-                            print(cell_xy[-1])
+                            #print(cell_xy[-1])
                             self.new_cell(cell_xy[0],cell_xy[1],
                                 title=cell_title[1],v=cell_xy[2])
                             self.raw_cell_list.append(len(self.cell_list)-1)
@@ -218,111 +218,108 @@ class map_cl:                                                                   
                    # for i in range(last_cell.y-1,last_cell.y+1):
                     #    for j in range(last_cell.x-1,last_cell.x+1):
                      #       self.new_cell(j,i,title=cell_title[0])
-    def _line(self,point1_xy,point2_xy):
-        #V1 print("ASUKA" + str(point1_xy))
-        #V! print("BSUKA" + str(point2_xy))
-        if point1_xy[1] == point2_xy[1]:
-            if point2_xy[0] < point1_xy[0]:
+    def _line(self,point1,point2):
+        #V1 print("ASUKA" + str(point1))
+        #V! print("BSUKA" + str(point2))
+        if point1.y == point2.y:
+            if point2.x < point1.x:
                 step_in_range = -1
 
             else:
                 step_in_range = 1
 
-            for i in range(point1_xy[0],point2_xy[0],step_in_range):
-                self.new_cell(i,point1_xy[1],title=cell_title[1],v=1)
+            for i in range(point1.x,point2.x,step_in_range):
+                self.new_cell(i,point1.y,title=cell_title[1],v=1)
 
             #V1 print(1)
-        elif point1_xy[0] == point2_xy[0]:
-            if point2_xy[1] < point1_xy[1]:
+        elif point1.x == point2.x:
+            if point2.y < point1.y:
                 step_in_range = -1
 
             else:
                 step_in_range = 1
 
-            for i in range(point1_xy[1],point2_xy[1],step_in_range):
-                self.new_cell(point1_xy[0],i,title=cell_title[1],v=1)
+            for i in range(point1.y,point2.y,step_in_range):
+                self.new_cell(point1.x,i,title=cell_title[1] ,v=1)
 
-            #V1 print(point1_xy)
-            #V1 print(point2_xy)
+            #V1 print(point1)
+            #V1 print(point2)
 
-        self.new_cell(point2_xy[0],point2_xy[1],title=cell_title[1],v=1)
+        self.new_cell(point2.x,point2.y,title=cell_title[1] ,v=1)
 
-    def _connect_corner(self,point1_xy,point2_xy,rand=2):
-        if (point1_xy[0] != point2_xy[0] and
-            point1_xy[1] != point2_xy[1]):
-            #V1 print(1)
+    def _connect_corner(self,point1,point2,rand=2):
+        if (point1.x != point2.x and
+            point1.y != point2.y):
+
             if rand not in [0,1]:
                 rand == randint(0,1)
 
             if rand:
-                self._line([point1_xy[0],point1_xy[1]]
-                          ,[point2_xy[0],point1_xy[1]])
+                self._line(point1,
+                           cell1(point2.x,point1.y))
 
-                self._line([point2_xy[0],point1_xy[1]]
-                          ,[point2_xy[0],point2_xy[1]])
+                self._line(cell1(point2.x,point1.y),
+                           point2)
             else:
+                self._line(point1,
+                           cell1(point1.x,point2.y))
 
-                self._line([point1_xy[0],point1_xy[1]]
-                          ,[point1_xy[0],point2_xy[1]])
-
-                self._line([point1_xy[0],point2_xy[1]]
-                          ,[point2_xy[0],point2_xy[1]])
+                self._line(cell1(point1.x,point2.y),
+                           point2)
 
         else:
-            #V1 print(2)
-            self._line(point1_xy,point2_xy)
+            self._line(point1,point2)
 
-    def _connect_strench(self,point1_xy,point2_xy,vek=1):
+    def _connect_strench(self,point1,point2,vek=1):
 
-        ax = point2_xy[0] - point1_xy[0]
-        ay = point2_xy[1] - point1_xy[1]
+        ax = point2.x - point1.x
+        ay = point2.y - point1.y
         #V1 print(ay)
         if ax == 0 or ay == 0:
-            self._line(point1_xy,point2_xy)
+            self._line(point1,point2)
             return
 
         vx = ax / math.fabs(ax)
         vy = ay / math.fabs(ay)
 
-        medium_point = [math.floor(point1_xy[0] + ax/2),
-                        math.floor(point1_xy[1] + ay/2)]
-        #V1 print("Cредняя точка по X = " + str(math.floor(point1_xy[0] + ax/2)))
-        #V1 print("Cредняя точка по Y = " + str(math.floor(point1_xy[1] + ay/2)))
+        medium_point = cell1(math.floor(point1.x + ax/2),
+                        math.floor(point1.y + ay/2))
+        #V1 print("Cредняя точка по X = " + str(math.floor(point1.x + ax/2)))
+        #V1 print("Cредняя точка по Y = " + str(math.floor(point1.y + ay/2)))
 
         if (vek == 1):
-            self._line( point1_xy,
-                       [medium_point[0], point1_xy[1]])
-            self._line([medium_point[0], point1_xy[1]],
-                       [medium_point[0], point2_xy[1]])
-            self._line([medium_point[0], point2_xy[1]],
-                        point2_xy)
+            self._line(point1,
+                       cell1(medium_point.x, point1.y))
+
+            self._line(cell1(medium_point.x, point1.y),
+                       cell1(medium_point.x, point2.y))
+
+            self._line(cell1(medium_point.x, point2.y),
+                       point2)
 
         else:
-            self._line( point1_xy,
-                       [point1_xy[0], medium_point[1]])
-            #V1 print("Строитель в точке " + str(point1_xy[0]) + " "  + str(medium_point[1]))
+            self._line(point1,
+                       cell1(point1.x, medium_point.y))
 
-            ##V1 print("Точка вторая" + str(point2_xy))
-            self._line([point1_xy[0], medium_point[1]],
-                       [point2_xy[0], medium_point[1]])
+           # print(medium_point)
+            self._line(cell1(point1.x, medium_point.y),
+                       cell1(point2.x, medium_point.y))
 
-            #V1 print("Строитель в точке " + str(point2_xy[0]) + " "  + str(medium_point[1]))
-
-            self._line([point2_xy[0], medium_point[1]],
-                        point2_xy)
+            self._line(cell1(point2.x, medium_point.y),
+                       point2)
 
 
     def _not_null_wall(self,doors):
         return 0
 
-    def _tunnels(self, p0, p1):
-        mainer = [p0.x, p0.y]
-        ##V1 print("X: " + str(p0.x)+' '+str(p1.x))
-        #print("Y: " + str(p0.y)+' '+str(p1.y))
+    def _tunnels(self, point1, point2):
+        mainer = cell1(point1.x, point1.y)
+        ##V1 print("X: " + str(point1.x)+' '+str(point2.x))
+        #print("Y: " + str(point1.y)+' '+str(point2.y))
         turn = 0
-        while not(mainer[0] == p1.x and mainer[1] == p1.y):
-            ax = p1.x - mainer[0]   
-            ay = p1.y + mainer[1]   
+        while not(mainer.x == point2.x and mainer.y == point2.y):
+            ax = point2.x - mainer.x   
+            ay = point2.y + mainer.y   
             if(ax == ay == 0):
                 break
 
@@ -330,32 +327,32 @@ class map_cl:                                                                   
                
                 if(ax != 0):
                     v1 = math.fabs(ax)/ax
-                    mainer[0] += v1
+                    mainer.x += v1
 
                 else:
                     v1 = [-1, 1][randint(0, 1)]
-                    mainer[0] += v1
+                    mainer.x += v1
 
                 turn = 1
-                self.new_cell(int(mainer[0]),int(mainer[1]),
+                self.new_cell(int(mainer.x),int(mainer.y),
                     v = v1+2,title=cell_title[1])
 
             else:
                     
                 if(ay != 0):
                     v1 = math.fabs(ay)/ay
-                    mainer[1] += v1
+                    mainer.y += v1
 
                 else:
                     v1 = [-1, 1][randint(0, 1)]
-                    mainer[1] += v1
+                    mainer.y += v1
 
                 turn = 0
-                self.new_cell(int(mainer[0]),int(mainer[1]),v = v1+1,title=cell_title[1])
+                self.new_cell(int(mainer.x),int(mainer.y),v = v1+1,title=cell_title[1])
 
-    def _diagonal(self, p0, p1):
-        mainer = [p0.x, p0.y]
-        dxy = [math.fabs(p1.x - p0.x),math.fabs(p1.y - p0.y)]
+    def _diagonal(self, point1, point2):
+        mainer = cell1(point1.x, point1.y)
+        dxy = [math.fabs(point2.x - point1.x),math.fabs(point2.y - point1.y)]
         #print ('высота - '+str(dxy[0]) + 'ширина - '+str(dxy[1]))
         if dxy[0] > dxy[1]:
             small_d = dxy[1] - 1
@@ -367,13 +364,15 @@ class map_cl:                                                                   
             big_d   = dxy[1] - 1
             orent = 1
             
-        if p0.x < p1.x:
+        if point1.x < point2.x:
             plinx = 1
+
         else:
             plinx = -1
 
-        if p0.y < p1.y:
+        if point1.y < point2.y:
             pliny = 1
+
         else:
             pliny = -1
 
@@ -389,49 +388,49 @@ class map_cl:                                                                   
         matr = []               
         for i in range(int(koll_pere)):
             for j in range(int(koll_step)):
-                mainer[0]+=plinx
-                matr.append([mainer[0], mainer[1]])
+                mainer.x+=plinx
+                matr.append([mainer.x, mainer.y])
 
             mainer[1]+=pliny
-            matr.append([mainer[0], mainer[1]])
-            #self.new_cell(mainer[0], mainer[1], title=cell_title[1],v=1)
+            matr.append([mainer.x, mainer.y])
 
         for i in range(dobav):
-                mainer[0]+=plinx
-                matr.append([mainer[0], mainer[1]])
-                #self.new_cell(mainer[0], mainer[1], title=cell_title[1],v=1)
+                mainer.x+=plinx
+                matr.append([mainer.x, mainer.y])
 
         for i in matr:
             if orent == 0:
-                self.new_cell(i[0], i[1], title=cell_title[1],v=1)
+                self.new_cell(i.x, i.y, title=cell_title[1],v=1)
 
             else:
-                self.new_cell(i[1], i[0], title=cell_title[1],v=1)
+                self.new_cell(i.y, i.x, title=cell_title[1],v=1)
 
     def door_xy(self,doors,wid,hid):
         return_doors = [[],[],[],[]]
         for i in range(len(doors)):
             for j in doors[i]:
                 if i == 0:
-                    return_doors[0].append([int(j),0,i])
+                    return_doors[0].append(cell1(int(j),0,i))
                 if i == 1:
-                    return_doors[1].append([wid,int(j),i])
+                    return_doors[1].append(cell1(wid,int(j),i))
                 if i == 2:
-                    return_doors[2].append([int(j),hid,i])
+                    return_doors[2].append(cell1(int(j),hid,i))
                 if i == 3:
-                    return_doors[3].append([0,int(j),i])
+                    return_doors[3].append(cell1(0,int(j),i))
+
         return return_doors
-    def _cavity_gen(self,point1_xy,point2_xy):
-        ax = int(point2_xy[0] - point1_xy[0])
-        ay = int(point2_xy[1] - point1_xy[1])
+
+    def _cavity_gen(self,point1,point2):
+        ax = int(point2.x - point1.x)
+        ay = int(point2.y - point1.y)
         vx = int(ax / math.fabs(ax))
         vy = int(ay / math.fabs(ay))
         ax = math.fabs(ax)
         ay = math.fabs(ay)
 
-        for i in range(point1_xy[0],point2_xy[0]+1,vx):
-            for j in range(point1_xy[1],point2_xy[1]+1,vy):
-                print(str(i) + " " + str(j))
+        for i in range(point1.x,point2.x+1,vx):
+            for j in range(point1.y,point2.y+1,vy):
+                #print(str(i) + " " + str(j))
                 self.new_cell(i,j,title=cell_title[1],v=1)
 
 
@@ -529,7 +528,7 @@ def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[8]]
     for i in l1:
         for j in i:
             #V1 print("aaaaa " + str(j))
-            cl1.new_cell(j[0],j[1],v=j[2],title=cell_title[2])
+            cl1.new_cell(j.x,j.y,v=j.vek,title=cell_title[2])
             #print(cl1.cell_list[cl1.find_xy(i[0],i[1])].title)
 
     #V1 print(l1)
@@ -547,9 +546,7 @@ def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[8]]
         cl1.new_cell(x1,y1,title=cell_title[1],v=1)
         cav_list.append(cl1.cell_list[-1])
 
-        cl1._cavity_gen([x1-1,y1-1],[x1+1,y1+1])
-
-        cl1._diagonal(cav_list[-1],)
+        cl1._cavity_gen(cell1(x1-1,y1-1),cell1(x1+1,y1+1))
 
 
     cl1.print_array()
