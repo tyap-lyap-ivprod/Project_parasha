@@ -129,10 +129,6 @@ class map_cl:                                                                   
         elif vek == 3.5:
             return -1,-1
 
-    def step_by_vektor(self,vek):
-        x, y = self.get_vektor(vek)
-        return self.new_cell(x,y,cell_title[1],vek)
-
     def _vek_plus(self,vek,max_t=3):
         if vek == max_t:
             return 0
@@ -145,75 +141,13 @@ class map_cl:                                                                   
         else:
             return vek - 1
 
-    def _turn(self,vek,napr,max):
-        if (napr == "LEFT"):
-            pass
-
     def _set_block(self,block):
         for i in range(len(self.cell_list)):
             for j in block:
                 if j not in self.cell_list[i].block:
                     self.cell_list[i].block.append(int(j))
 
-    def step(self):
-        if len(self.raw_cell_list) > 0:                                         #если есть не обработанные клетки
-            #снимается адресс последний не обработанной клетки
-            last_n = self.raw_cell_list.pop(randint(0,
-                        len(self.raw_cell_list)-1)
-                    )
-            #в переменную <<last_cell>> передаётся необработанная клетка
-            last_cell = self.cell_list[last_n]  
-            len_block = 4 - len(last_cell.block)  
-            if len_block < 4:
-                if last_cell.vek not in last_cell.block:
-                    #print('f')
-                    #print(last_cell.vek)
-                    vx,vy = self.get_vektor(last_cell.vek)
-                    #print('vx = ' + str(vx) + '\nvy = '+ str(vy))
-                    if self.new_cell(last_cell.x+vx, last_cell.y+vy,
-                                     cell_title[1], last_cell.vek):
-                        #print("yes!")
-                        self.raw_cell_list.append(len(self.cell_list)-1)
-                        self.cell_list[-1].block = [
-                            self._vek_min(self._vek_min(last_cell.vek))
-                            ]
-
-
-                    vek_min  = self._vek_min (last_cell.vek)
-                    vek_plus = self._vek_plus(last_cell.vek)
-                    
-                    vxmin,vymin   = self.get_vektor(vek_min)
-                    vxplus,vyplus = self.get_vektor(vek_plus)
-
-                    vxmin += last_cell.x
-                    vymin += last_cell.y
-
-                    vxplus+= last_cell.x
-                    vyplus += last_cell.y
-
-                    if (randint(0,4) > 3):
-                        variant  = []
-                        #V1 print("F")
-                        
-                        if (self._if_emrt(vxmin, vymin)   
-                            and (vek_min not in last_cell.block)):
-                            variant.append([vxmin, vymin, vek_min])
-
-                        elif (self._if_emrt(vxplus, vyplus) 
-                            and (vek_plus not in last_cell.block)):
-                            variant.append([vxplus, vyplus, vek_plus])       
-
-                        if len(variant)>0:
-                            cell_xy = variant[randint(0,len(variant)-1)]
-                            #print(cell_xy[-1])
-                            self.new_cell(cell_xy[0],cell_xy[1],
-                                title=cell_title[1],v=cell_xy[2])
-                            self.raw_cell_list.append(len(self.cell_list)-1)
-                            self.cell_list[-1].block = [
-                                self._vek_min(self._vek_min(cell_xy[-1]))
-                                ]
-
-    def _line(self,point1,point2):
+    def _line(self,point1,point2):                                              #линия от точки до точки
         #V1 print("ASUKA" + str(point1))
         #V! print("BSUKA" + str(point2))
         if point1.y == point2.y:
@@ -242,7 +176,7 @@ class map_cl:                                                                   
 
         self.new_cell(point2.x,point2.y,title=cell_title[1] ,v=1)
 
-    def _connect_corner(self,point1,point2,rand=2):
+    def _connect_corner(self,point1,point2,rand=2):                             #connection by cornet(угловое соединение)
         if (point1.x != point2.x and
             point1.y != point2.y):
 
@@ -265,7 +199,7 @@ class map_cl:                                                                   
         else:
             self._line(point1,point2)
 
-    def _connect_strench(self,point1,point2,vek=1):
+    def _connect_strench(self,point1,point2,vek=1):                             #connection by strench(соединение растяжкой)                            
 
         ax = point2.x - point1.x
         ay = point2.y - point1.y
@@ -311,7 +245,7 @@ class map_cl:                                                                   
 
         return buf
 
-    def _tunnels(self, point1, point2):
+    def _tunnels(self, point1, point2):                                         #неработающая функция создания тунелей
         mainer = cell1(point1.x, point1.y)
         ##V1 print("X: " + str(point1.x)+' '+str(point2.x))
         #print("Y: " + str(point1.y)+' '+str(point2.y))
@@ -350,7 +284,7 @@ class map_cl:                                                                   
                 self.new_cell(int(mainer.x),int(mainer.y),
                               v = v1+1,title=cell_title[1])
 
-    def _diagonal(self, point1, point2):
+    def _diagonal(self, point1, point2):                                        #не отлаженая функция соединения диагоналями
         mainer = cell1(point1.x, point1.y)
         dxy = [math.fabs(point2.x - point1.x),math.fabs(point2.y - point1.y)]
         #print ('высота - '+str(dxy[0]) + 'ширина - '+str(dxy[1]))
@@ -433,7 +367,7 @@ class map_cl:                                                                   
 
         return buf_list
 
-    def _cavity_gen(self,point1,point2):
+    def _cavity_gen(self,point1,point2):                                        #создание полостей
         ax = int(point2.x - point1.x)
         ay = int(point2.y - point1.y)
         vx = int(ax / math.fabs(ax))
@@ -446,7 +380,7 @@ class map_cl:                                                                   
                 #print(str(i) + " " + str(j))
                 self.new_cell(i,j,title=cell_title[1],v=1)
 
-    def _room_gen(self, wid, hid, doors=[], start=cell1(0,0)):
+    def _room_gen(self, wid, hid, doors=[], start=cell1(0,0)):                  #создание комнаты с door
         for i in range(wid):
             for j in range(hid):
                 if ((i==0 or j==0) or 
@@ -533,7 +467,7 @@ test_map2(4,16)
 print("Третий тест")
 test_map3(4,16)'''
 
-def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[8]]):
+def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[],[randint(2,18)],[]]):
     cl1 = map_cl('room')
     l1 = cl1.door_xy(doors,wid,hid)
     l2 = cl1.door_list(l1)
