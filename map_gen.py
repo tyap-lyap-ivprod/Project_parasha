@@ -39,6 +39,24 @@ class map_cl:                                                                   
                 return False
         return True
 
+    def nearby_xy(self,x=None,y=None,cell=None):
+        if (x == None) or (y == None):
+            if cell != None:
+                x,y = cell.x,cell.y
+
+            else:
+                print("Введите x,y или cell")
+
+        buf_list = []
+
+        for i in range(x-1, x+2):
+            for j in range(y-1, y+2):
+                if self._if_emrt(i,j):
+                    buf_cell = self.find_xy(i,j)
+                    buf_list.append(buf_cell)
+
+        return buf_list
+
     def new_cell(self,x,y,title,v=1):                                           #функция создания новой клетки в <<cell_list>>
         if not self._if_emrt(x,y):
            #V1 print("false" + str(x)+ " "+ str(y))
@@ -87,7 +105,7 @@ class map_cl:                                                                   
         for i in range(max_y-min_y+1):
             cell_array.append([])
             for j in range(max_x-min_x+1):
-                cell_array[-1].append(cell1(j,i,0,cell_title[0]))
+                cell_array[-1].append(cell1(j,i,vek=0,title=cell_title[0]))
 
         for i in self.cell_list:
             cell_array[i.y+vy][i.x+vx] = i
@@ -129,18 +147,33 @@ class map_cl:                                                                   
         elif vek == 3.5:
             return -1,-1
 
-    def _vek_plus(self,vek,max_t=3):
+    def _vek_plus(self, vek, max_t=3):
         if vek == max_t:
             return 0
         else:
             return vek + 1
 
-    def _vek_min(self,vek,max_t=3):
+    def _vek_min(self, vek, max_t=3):
         if vek == 0:
             return max_t
         else:
             return vek - 1
 
+    def _set_vek(self, vek, add_vek, max_t=3):
+        print(vek)
+        buf_vek = int(vek)
+        if   add_vek > 0:
+            buf_fun = self._vek_plus(buf_vek)
+
+        elif add_vek < 0:
+            buf_fun = self._vek_min(buf_vek)
+
+
+        for i in range(add_vek):
+            buf_vek = buf_fun(buf_vek)
+
+        return int(buf_vek)
+        
     def _set_block(self,block):
         for i in range(len(self.cell_list)):
             for j in block:
@@ -153,23 +186,25 @@ class map_cl:                                                                   
         if point1.y == point2.y:
             if point2.x < point1.x:
                 step_in_range = -1
+                v=1
 
             else:
                 step_in_range = 1
-
+                v=3    
             for i in range(point1.x,point2.x,step_in_range):
-                self.new_cell(i,point1.y,title=cell_title[1],v=1)
+                self.new_cell(i,point1.y,title=cell_title[1],v=v)
 
             #V1 print(1)
         elif point1.x == point2.x:
             if point2.y < point1.y:
                 step_in_range = -1
-
+                v=2
             else:
                 step_in_range = 1
+                v=0
 
             for i in range(point1.y,point2.y,step_in_range):
-                self.new_cell(point1.x,i,title=cell_title[1] ,v=1)
+                self.new_cell(point1.x,i,title=cell_title[1] ,v=v)
 
             #V1 print(point1)
             #V1 print(point2)
@@ -348,13 +383,13 @@ class map_cl:                                                                   
         for i in range(len(raw_doors)):
             for j in raw_doors[i]:
                 if i == 0:
-                    return_doors[0].append(cell1(int(j),i,cell_title[2]))
+                    return_doors[0].append(cell1(int(j), 0, vek = i, title = cell_title[2]))
                 if i == 1:
-                    return_doors[1].append(cell1(wid,int(j),i,cell_title[2]))
+                    return_doors[1].append(cell1(wid, int(j), vek = i, title = cell_title[2]))
                 if i == 2:
-                    return_doors[2].append(cell1(int(j),hid,i,cell_title[2]))
+                    return_doors[2].append(cell1(int(j), hid, vek = i, title = cell_title[2]))
                 if i == 3:
-                    return_doors[3].append(cell1(0,int(j),i,cell_title[2]))
+                    return_doors[3].append(cell1(0, int(j), vek = i, title = cell_title[2]))
 
         return return_doors
 
@@ -440,8 +475,8 @@ def test_map1():
 
 def test_map2(x,y):
     cl1 = map_cl('room')
-    cl1._diagonal(cell1(0,0,1,cell_title[1]),
-                 cell1(x,y,1,cell_title[1]))
+    cl1._diagonal(cell1(0,0,v = 1,title = cell_title[1]),
+                  cell1(x,y,v = 1,title = cell_title[1]))
     cl1.print_array()
 
 def test_map3(x,y):
@@ -467,7 +502,7 @@ test_map2(4,16)
 print("Третий тест")
 test_map3(4,16)'''
 
-def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[],[randint(2,18)],[]]):
+def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[4]]):
     cl1 = map_cl('room')
     l1 = cl1.door_xy(doors,wid,hid)
     l2 = cl1.door_list(l1)
@@ -497,6 +532,16 @@ def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[],[randint(2,18)],[]]):
         cl1._cavity_gen(cell1(x1-1,y1-1),cell1(x1+1,y1+1))
 
         fun_gen(cav_list[-2],cav_list[-1])
+
+    for i in range(len(cl1.cell_list)):
+        #print("Клетка номер" + str(i) + "; X = " + str(cl1.cell_list[i].x) + "; y = " + str(cl1.cell_list[i].y)) 
+        near_cl = cl1.nearby_xy(cell = cl1.cell_list[i])
+        #print(len(near_cl))
+        if len(near_cl) in [4,7]:
+            #print(near_cl)
+            up_cell = cl1.get_vektor(cl1._set_vek(cl1.cell_list[i].vek,-1))
+            print(up_cell)
+            cl1.cell_list[i].title = cl1.cell_list[i].vek
 
     cl1.print_array()
     return cl1
