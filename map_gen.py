@@ -4,7 +4,7 @@ import math
 cell_title = {                                                                  #тайтлы для клетки
     "wall" : "#",   0 : "■",            
     "floar": ' ',   1 : '□',
-    "door" : '◁',   2 : '◁',
+    "door" : '◁',   2 : '-',
     4: ' '
 }
 
@@ -52,6 +52,7 @@ class map_cl:                                                                   
         for i in range(x-1, x+2):
             for j in range(y-1, y+2):
                 if self._if_emrt(i,j):
+                    print(self.find_xy(i,j))
                     buf_cell = self.find_xy(i,j)
                     buf_list.append(buf_cell)
 
@@ -149,13 +150,15 @@ class map_cl:                                                                   
 
     def _vek_plus(self, vek, max_t=3):
         if vek == max_t:
-            return 0
+            return int(0)
+
         else:
-            return vek + 1
+            return int(vek + 1)
 
     def _vek_min(self, vek, max_t=3):
         if vek == 0:
             return max_t
+
         else:
             return vek - 1
 
@@ -163,10 +166,10 @@ class map_cl:                                                                   
         print(vek)
         buf_vek = int(vek)
         if   add_vek > 0:
-            buf_fun = self._vek_plus(buf_vek)
+            buf_fun = self._vek_plus
 
         elif add_vek < 0:
-            buf_fun = self._vek_min(buf_vek)
+            buf_fun = self._vek_min
 
 
         for i in range(add_vek):
@@ -502,7 +505,13 @@ test_map2(4,16)
 print("Третий тест")
 test_map3(4,16)'''
 
-def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[4]]):
+def create_partmap(wid=20,hid=20,
+    doors=[
+        [randint(2,18)], #двери сверху
+        [0],             #двери справа
+        [randint(2,18)], #двери снизу
+        [0]              #двери слева
+    ]):
     cl1 = map_cl('room')
     l1 = cl1.door_xy(doors,wid,hid)
     l2 = cl1.door_list(l1)
@@ -539,8 +548,23 @@ def create_partmap(wid=20,hid=20,doors=[[randint(2,18)],[4],[randint(2,18)],[4]]
         #print(len(near_cl))
         if len(near_cl) in [4,7]:
             #print(near_cl)
-            up_cell = cl1.get_vektor(cl1._set_vek(cl1.cell_list[i].vek,-1))
-            print(up_cell)
+            buf_cell = [
+                cl1.get_vektor(cl1._set_vek(cl1.cell_list[i].vek, int(-1))),
+                cl1.get_vektor(cl1._set_vek(cl1.cell_list[i].vek, int(1)))
+            ]
+            print(cl1.cell_list[i].title)
+            print(buf_cell)
+
+            for i in buf_cell:
+                for j in near_cl:
+                    print(near_cl)
+                    if ((cl1.cell_list[j].x == i[0]) and
+                        (cl1.cell_list[j].y == i[1])):
+                        print(str(cl1.cell_list[j].x) + str(cl1.cell_list[j].y))
+
+
+
+
             cl1.cell_list[i].title = cl1.cell_list[i].vek
 
     cl1.print_array()
