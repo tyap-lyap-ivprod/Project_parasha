@@ -14,7 +14,8 @@ class cell1:                                                                    
         self.y = y
         self.title = title
         self.block = [3]                                                        #заблокировано движение [0,1,2,3]
-        self.vek = vek                                                 
+        self.vek = vek
+        self.type = 'Room'                                                 
         #напрвление создания клетки: 
         # 0 ; 
         #3 1; 
@@ -52,7 +53,9 @@ class map_cl:                                                                   
         for i in range(x-1, x+2):
             for j in range(y-1, y+2):
                 if self._if_emrt(i,j):
-                    print(self.find_xy(i,j))
+                    pass
+                else:
+                    #print(self.find_xy(i,j))
                     buf_cell = self.find_xy(i,j)
                     buf_list.append(buf_cell)
 
@@ -195,7 +198,7 @@ class map_cl:                                                                   
                 step_in_range = 1
                 v=3    
             for i in range(point1.x,point2.x,step_in_range):
-                self.new_cell(i,point1.y,title=cell_title[1],v=v)
+                self.new_cell(i,point1.y,title=cell_title[1],v=v,type="Corridor")
 
             #V1 print(1)
         elif point1.x == point2.x:
@@ -416,7 +419,7 @@ class map_cl:                                                                   
         for i in range(point1.x,point2.x+1,vx):
             for j in range(point1.y,point2.y+1,vy):
                 #print(str(i) + " " + str(j))
-                self.new_cell(i,j,title=cell_title[1],v=1)
+                self.new_cell(i,j,title=cell_title[1],v=1,type="Cavity")
 
     def _room_gen(self, wid, hid, doors=[], start=cell1(0,0)):                  #создание комнаты с door
         for i in range(wid):
@@ -505,12 +508,12 @@ test_map2(4,16)
 print("Третий тест")
 test_map3(4,16)'''
 
-def create_partmap(wid=20,hid=20,
+def create_partmap(wid=40,hid=20,
     doors=[
         [randint(2,18)], #двери сверху
-        [0],             #двери справа
+        [4,8],             #двери справа
         [randint(2,18)], #двери снизу
-        [0]              #двери слева
+        [5]              #двери слева
     ]):
     cl1 = map_cl('room')
     l1 = cl1.door_xy(doors,wid,hid)
@@ -532,7 +535,7 @@ def create_partmap(wid=20,hid=20,
 
     cav_list = [l2[0]]
 
-    for i in range(3):
+    for i in range(8):
         x1 = randint(2,wid-2)
         y1 = randint(2,hid-2)
         buf_cell = cell1(x1,y1,title=cell_title[1],vek=1)
@@ -555,12 +558,14 @@ def create_partmap(wid=20,hid=20,
             print(cl1.cell_list[i].title)
             print(buf_cell)
 
-            for i in buf_cell:
+            for i1 in buf_cell:
+
                 for j in near_cl:
                     print(near_cl)
-                    if ((cl1.cell_list[j].x == i[0]) and
-                        (cl1.cell_list[j].y == i[1])):
-                        print(str(cl1.cell_list[j].x) + str(cl1.cell_list[j].y))
+                    if ((cl1.cell_list[j].x == i1[0]) and
+                        (cl1.cell_list[j].y == i1[1])):
+                        #print(str(cl1.cell_list[j].x) + str(cl1.cell_list[j].y))
+                        pass
 
 
 
