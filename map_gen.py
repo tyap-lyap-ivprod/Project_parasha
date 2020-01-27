@@ -2,20 +2,20 @@ from random import randint
 import math
 
 cell_title = {                                                                  #тайтлы для клетки
-    "wall" : "#",   0 : "■",            
-    "floar": ' ',   1 : '□',
-    "door" : '◁',   2 : '-',
+    "wall" : "■",   0 : "■",            
+    "floar": '□',   1 : '□',
+    "door" : '|',   2 : '|',
     4: ' '
 }
 
 class cell1:                                                                    #класс клетки
-    def __init__(self,x,y,vek=1,title=2):
+    def __init__(self, x, y, vek=1, title=2, type_s='Room'):
         self.x = x
         self.y = y
         self.title = title
         self.block = [3]                                                        #заблокировано движение [0,1,2,3]
         self.vek = vek
-        self.type = 'Room'                                                 
+        self.type_s = type_s                                                 
         #напрвление создания клетки: 
         # 0 ; 
         #3 1; 
@@ -46,7 +46,8 @@ class map_cl:                                                                   
                 x,y = cell.x,cell.y
 
             else:
-                print("Введите x,y или cell")
+            #print("Введите x,y или cell")
+                pass
 
         buf_list = []
 
@@ -61,13 +62,13 @@ class map_cl:                                                                   
 
         return buf_list
 
-    def new_cell(self,x,y,title,v=1):                                           #функция создания новой клетки в <<cell_list>>
+    def new_cell(self,x,y,title,v=1, type_s="Room"):                                           #функция создания новой клетки в <<cell_list>>
         if not self._if_emrt(x,y):
            #V1 print("false" + str(x)+ " "+ str(y))
             return False
 
 
-        self.cell_list.append(cell1(x,y,title=title,vek=v))
+        self.cell_list.append(cell1(x,y,title=title,vek=v,type_s=type_s))
         return True
 
     def append_cell(self,cell):
@@ -166,7 +167,7 @@ class map_cl:                                                                   
             return vek - 1
 
     def _set_vek(self, vek, add_vek, max_t=3):
-        print(vek)
+        #print(vek)
         buf_vek = int(vek)
         if   add_vek > 0:
             buf_fun = self._vek_plus
@@ -198,7 +199,7 @@ class map_cl:                                                                   
                 step_in_range = 1
                 v=3    
             for i in range(point1.x,point2.x,step_in_range):
-                self.new_cell(i,point1.y,title=cell_title[1],v=v,type="Corridor")
+                self.new_cell(i,point1.y,title=cell_title[1],v=v,type_s="Corridor")
 
             #V1 print(1)
         elif point1.x == point2.x:
@@ -419,7 +420,7 @@ class map_cl:                                                                   
         for i in range(point1.x,point2.x+1,vx):
             for j in range(point1.y,point2.y+1,vy):
                 #print(str(i) + " " + str(j))
-                self.new_cell(i,j,title=cell_title[1],v=1,type="Cavity")
+                self.new_cell(i,j,title=cell_title[1],v=1,type_s="Cavity")
 
     def _room_gen(self, wid, hid, doors=[], start=cell1(0,0)):                  #создание комнаты с door
         for i in range(wid):
@@ -549,28 +550,29 @@ def create_partmap(wid=40,hid=20,
         #print("Клетка номер" + str(i) + "; X = " + str(cl1.cell_list[i].x) + "; y = " + str(cl1.cell_list[i].y)) 
         near_cl = cl1.nearby_xy(cell = cl1.cell_list[i])
         #print(len(near_cl))
-        if len(near_cl) in [4,7]:
+        if len(near_cl) in [5,7]:
             #print(near_cl)
             buf_cell = [
                 cl1.get_vektor(cl1._set_vek(cl1.cell_list[i].vek, int(-1))),
                 cl1.get_vektor(cl1._set_vek(cl1.cell_list[i].vek, int(1)))
             ]
-            print(cl1.cell_list[i].title)
-            print(buf_cell)
-
+            #print(cl1.cell_list[i].title)
+            #print(buf_cell)
+            new_buf = list()
             for i1 in buf_cell:
+                new_buf.append(cell1(cl1.cell_list[i].x + i1[0], cl1.cell_list[i].y + i1[1]))
 
-                for j in near_cl:
-                    print(near_cl)
-                    if ((cl1.cell_list[j].x == i1[0]) and
-                        (cl1.cell_list[j].y == i1[1])):
+            for j in near_cl:
+                    #print(near_cl)
+                    #print(str(cl1.cell_list[j].x) + " " + str(i1[0]))
+                    if ((cl1.cell_list[j].x == new_buf.x) and
+                        (cl1.cell_list[j].y == new_buf.y)):
                         #print(str(cl1.cell_list[j].x) + str(cl1.cell_list[j].y))
-                        pass
-
-
-
-
-            cl1.cell_list[i].title = cl1.cell_list[i].vek
+            #print(cl1.cell_list[i].type_s)
+                        if cl1.cell_list[i].type_s == "Corridor":
+                            print(vars(cl1.cell_list[i]))
+                            print("s " + str(vars(new_buf)))
+                            cl1.cell_list[i].title = cell_title['door']
 
     cl1.print_array()
     return cl1
