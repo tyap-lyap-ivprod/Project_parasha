@@ -562,16 +562,20 @@ def create_partmap(wid=40,hid=20,
             for i1 in buf_cell:
                 new_buf.append(cell1(cl1.cell_list[i].x + i1[0], cl1.cell_list[i].y + i1[1]))
 
-            for j in near_cl:
+          #  for j in near_cl:
                     #print(near_cl)
                     #print(str(cl1.cell_list[j].x) + " " + str(i1[0]))
-                    if ((cl1.cell_list[j].x == new_buf.x) and
-                        (cl1.cell_list[j].y == new_buf.y)):
-                        #print(str(cl1.cell_list[j].x) + str(cl1.cell_list[j].y))
-            #print(cl1.cell_list[i].type_s)
+             #       print(vars(new_buf[0]))
+
+            cl1.cell_list[i].x + buf_cell[0].[0]
+
+            if (((cl1.cell_list[j].x == new_buf[0].x) and
+                 (cl1.cell_list[j].y == new_buf[0].y)) and
+                ((cl1.cell_list[j].x == new_buf[1].x) and
+                 (cl1.cell_list[j].y == new_buf[1].y))):
                         if cl1.cell_list[i].type_s == "Corridor":
-                            print(vars(cl1.cell_list[i]))
-                            print("s " + str(vars(new_buf)))
+                            #print(vars(cl1.cell_list[i]))
+                            print("s " + str(vars(new_buf[0])))
                             cl1.cell_list[i].title = cell_title['door']
 
     cl1.print_array()
