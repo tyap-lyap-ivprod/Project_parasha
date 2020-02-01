@@ -128,6 +128,7 @@ class map_cl:                                                                   
             print(buf)
 
     def get_vektor(self,vek):
+       # print(vek)
         if   vek == 0:
             return 0,-1
 
@@ -167,18 +168,24 @@ class map_cl:                                                                   
             return vek - 1
 
     def _set_vek(self, vek, add_vek, max_t=3):
-        #print(vek)
+        
         buf_vek = int(vek)
         if   add_vek > 0:
             buf_fun = self._vek_plus
+          #  print("+")
+            rn = range(0, add_vek, 1)
 
         elif add_vek < 0:
             buf_fun = self._vek_min
+          #  print("-")
+            rn = range(0, add_vek, -1)
 
 
-        for i in range(add_vek):
+        for i in rn:
+          #  print("-")
             buf_vek = buf_fun(buf_vek)
 
+       # print(str(vek) + " > " + str(buf_vek))
         return int(buf_vek)
         
     def _set_block(self,block):
@@ -199,7 +206,7 @@ class map_cl:                                                                   
                 step_in_range = 1
                 v=3    
             for i in range(point1.x,point2.x,step_in_range):
-                self.new_cell(i,point1.y,title=cell_title[1],v=v,type_s="Corridor")
+                self.new_cell(i, point1.y, title=cell_title[1], v=v,type_s="Corridor")
 
             #V1 print(1)
         elif point1.x == point2.x:
@@ -211,12 +218,12 @@ class map_cl:                                                                   
                 v=0
 
             for i in range(point1.y,point2.y,step_in_range):
-                self.new_cell(point1.x,i,title=cell_title[1] ,v=v)
+                self.new_cell(point1.x, i, title=cell_title[1], v=v, type_s="Corridor" )
 
             #V1 print(point1)
             #V1 print(point2)
 
-        self.new_cell(point2.x,point2.y,title=cell_title[1] ,v=1)
+        
 
     def _connect_corner(self,point1,point2,rand=2):                             #connection by cornet(угловое соединение)
         if (point1.x != point2.x and
@@ -550,7 +557,7 @@ def create_partmap(wid=40,hid=20,
         #print("Клетка номер" + str(i) + "; X = " + str(cl1.cell_list[i].x) + "; y = " + str(cl1.cell_list[i].y)) 
         near_cl = cl1.nearby_xy(cell = cl1.cell_list[i])
         #print(len(near_cl))
-        if len(near_cl) in [5,7]:
+        if len(near_cl) in [4,5,6,7]:
             #print(near_cl)
             buf_cell = [
                 cl1.get_vektor(cl1._set_vek(cl1.cell_list[i].vek, int(-1))),
@@ -567,16 +574,38 @@ def create_partmap(wid=40,hid=20,
                     #print(str(cl1.cell_list[j].x) + " " + str(i1[0]))
              #       print(vars(new_buf[0]))
 
-            cl1.cell_list[i].x + buf_cell[0].[0]
+            #print(
+             #   vars(cl1.cell_list[i]),
+              #  vars(cl1.cell_list[near_cl[0]]),
+               # len(near_cl))
 
-            if (((cl1.cell_list[j].x == new_buf[0].x) and
-                 (cl1.cell_list[j].y == new_buf[0].y)) and
-                ((cl1.cell_list[j].x == new_buf[1].x) and
-                 (cl1.cell_list[j].y == new_buf[1].y))):
-                        if cl1.cell_list[i].type_s == "Corridor":
-                            #print(vars(cl1.cell_list[i]))
-                            print("s " + str(vars(new_buf[0])))
-                            cl1.cell_list[i].title = cell_title['door']
+            print(cl1.cell_list[i].vek, buf_cell)
+            kol = 0
+
+            if (
+                    not (cl1.find_xy(new_buf[0].x,new_buf[0].y)) and
+                    not (cl1.find_xy(new_buf[1].x,new_buf[1].y))
+               ):
+                buf_fl = False
+                for j in near_cl:
+                    print (j)
+                    if cl1.cell_list[j].type_s == "Door":
+                        buf_fl = True
+                        break
+
+
+                if cl1.cell_list[i].type_s == "Corridor" and not buf_fl:
+                    if randint(0,1):
+                        cl1.cell_list[i].title = cell_title['door']
+                        cl1.cell_list[i].type_s = "Door"
+    
+                
+                #((cl1.cell_list[j].x == new_buf[1].x)  and
+                 #(cl1.cell_list[j].y == new_buf[1].y))):
+                  #      if cl1.cell_list[i].type_s == "Corridor":
+                   #         #print(vars(cl1.cell_list[i]))
+                    #        print("s " + str(vars(new_buf[0])))
+                     #       cl1.cell_list[i].title = cell_title['door']```
 
     cl1.print_array()
     return cl1
