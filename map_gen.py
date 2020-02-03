@@ -392,7 +392,7 @@ class map_cl:                                                                   
             else:
                 self.new_cell(i.y, i.x, title=cell_title[1],v=1)
 
-    def door_xy(self,raw_doors,wid,hid):                                        #вывод координат дверей
+    def door_xy(self, raw_doors, wid, hid):                                        #вывод координат дверей
         return_doors = [[],[],[],[]]
         for i in range(len(raw_doors)):
             for j in raw_doors[i]:
@@ -402,6 +402,21 @@ class map_cl:                                                                   
                     return_doors[1].append(cell1(wid, int(j), vek = i, title = cell_title[2]))
                 if i == 2:
                     return_doors[2].append(cell1(int(j), hid, vek = i, title = cell_title[2]))
+                if i == 3:
+                    return_doors[3].append(cell1(0, int(j), vek = i, title = cell_title[2]))
+
+        return return_doors
+
+    def door_xy_extrude(self, raw_doors, wid, hid):                                        #вывод координат дверей
+        return_doors = [[],[],[],[]]
+        for i in range(len(raw_doors)):
+            for j in raw_doors[i]:
+                if i == 0:
+                    return_doors[0].append(cell1(int(j), 1, vek = i, title = cell_title[2]))
+                if i == 1:
+                    return_doors[1].append(cell1(wid-1, int(j), vek = i, title = cell_title[2]))
+                if i == 2:
+                    return_doors[2].append(cell1(int(j), hid-1, vek = i, title = cell_title[2]))
                 if i == 3:
                     return_doors[3].append(cell1(0, int(j), vek = i, title = cell_title[2]))
 
@@ -524,19 +539,22 @@ def create_partmap(wid=40,hid=20,
         [5]              #двери слева
     ]):
     cl1 = map_cl('room')
-    l1 = cl1.door_xy(doors,wid,hid)
-    l2 = cl1.door_list(l1)
+    l1 = cl1.door_xy(doors, wid, hid)
+    l3 = cl1.door_xy_extrude(doors, wid, hid)
+
+    l2 = cl1.door_list(l3)
+    l4 = cl1.door_list(l1)
 
     fun_gen = cl1._connect_strench #соедиение "растяжками" и отрезками
     #fun_gen = cl1._connect_corner #соедиение углами и отрезками
 
-    for i in l2:
+    for i in l4:
             cl1.append_cell(i)
 
     #V1 print(l1)
     for i in range(1,len(l2)):
         fun_gen(l2[i-1],l2[i])
-    cl1._connect_room(l1)
+    cl1._connect_room(l3)
     for i in cl1.cell_list:
     #    print(i.title + " " + str(i.x) + " " + str(i.y))
         pass
