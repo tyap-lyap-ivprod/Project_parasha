@@ -1,10 +1,12 @@
 from random import randint
 import math
 
+from room import Room
+
 cell_title = {                                                                  #тайтлы для клетки
     "wall" : "■",   0 : "■",            
-    "floar": '□',   1 : '□',
-    "door" : '|',   2 : '|',
+    "floar": '□',   1 : ' ',
+    "door" : '|',   2 : '-',
     4: ' '
 }
 
@@ -33,6 +35,7 @@ class map_cl:                                                                   
         self.cell_list     = []
         self.cell_array    = []
         self.raw_cell_list = [0]
+        self.rooms         = []
 
     def _if_emrt(self,x,y):
         for i in self.cell_list:
@@ -110,7 +113,7 @@ class map_cl:                                                                   
         for i in range(max_y-min_y+1):
             cell_array.append([])
             for j in range(max_x-min_x+1):
-                cell_array[-1].append(cell1(j,i,vek=0,title=cell_title[0]))
+                cell_array[-1].append(cell1(j, i, vek = 0, title = 0))
 
         for i in self.cell_list:
             cell_array[i.y+vy][i.x+vx] = i
@@ -123,7 +126,15 @@ class map_cl:                                                                   
         for i in self.cell_array:
             buf=''
             for j in i:
-                buf+=str(j.title)+" "
+                if j.title in ["door", 2]:
+                    if j.vek in [0,2]:
+                        b1 = '—'
+                    
+                    else:
+                        b1 = '|'
+                else:
+                    b1 = cell_title[j.title]
+                buf+=str(b1)+" "
             
             print(buf)
 
@@ -138,7 +149,7 @@ class map_cl:                                                                   
         elif vek == 2:
             return 0,1
             
-        elif vek == 3:
+        elif vek == 3: 
             return -1,0
 
         elif vek == 0.5:                                                        #зачем? Пусть будет
@@ -206,7 +217,7 @@ class map_cl:                                                                   
                 step_in_range = 1
                 v=3    
             for i in range(point1.x,point2.x,step_in_range):
-                self.new_cell(i, point1.y, title=cell_title[1], v=v,type_s="Corridor")
+                self.new_cell(i, point1.y, title = 1, v = v, type_s = "Corridor")
 
             #V1 print(1)
         elif point1.x == point2.x:
@@ -218,7 +229,7 @@ class map_cl:                                                                   
                 v=0
 
             for i in range(point1.y,point2.y,step_in_range):
-                self.new_cell(point1.x, i, title=cell_title[1], v=v, type_s="Corridor" )
+                self.new_cell(point1.x, i, title = 1, v = v, type_s = "Corridor" )
 
             #V1 print(point1)
             #V1 print(point2)
@@ -317,7 +328,7 @@ class map_cl:                                                                   
 
                 turn = 1
                 self.new_cell(int(mainer.x),int(mainer.y),
-                    v = v1+2,title=cell_title[1])
+                    v = v1 + 2, title= 1 )
 
             else:
                     
@@ -331,7 +342,7 @@ class map_cl:                                                                   
 
                 turn = 0
                 self.new_cell(int(mainer.x),int(mainer.y),
-                              v = v1+1,title=cell_title[1])
+                              v = v1 + 1, title = 1)
 
     def _diagonal(self, point1, point2):                                        #не отлаженая функция соединения диагоналями
         mainer = cell1(point1.x, point1.y)
@@ -387,23 +398,23 @@ class map_cl:                                                                   
 
         for i in matr:
             if orent == 0:
-                self.new_cell(i.x, i.y, title=cell_title[1],v=1)
+                self.new_cell(i.x, i.y, title = 1, v = 1)
 
             else:
-                self.new_cell(i.y, i.x, title=cell_title[1],v=1)
+                self.new_cell(i.y, i.x, title = 1, v = 1)
 
     def door_xy(self, raw_doors, wid, hid):                                        #вывод координат дверей
         return_doors = [[],[],[],[]]
         for i in range(len(raw_doors)):
             for j in raw_doors[i]:
                 if i == 0:
-                    return_doors[0].append(cell1(int(j), 0, vek = i, title = cell_title[2]))
+                    return_doors[0].append(cell1(int(j), 0, vek = i, title = 2))
                 if i == 1:
-                    return_doors[1].append(cell1(wid, int(j), vek = i, title = cell_title[2]))
+                    return_doors[1].append(cell1(wid, int(j), vek = i, title = 2))
                 if i == 2:
-                    return_doors[2].append(cell1(int(j), hid, vek = i, title = cell_title[2]))
+                    return_doors[2].append(cell1(int(j), hid, vek = i, title = 2))
                 if i == 3:
-                    return_doors[3].append(cell1(0, int(j), vek = i, title = cell_title[2]))
+                    return_doors[3].append(cell1(0, int(j), vek = i, title = 2))
 
         return return_doors
 
@@ -412,13 +423,13 @@ class map_cl:                                                                   
         for i in range(len(raw_doors)):
             for j in raw_doors[i]:
                 if i == 0:
-                    return_doors[0].append(cell1(int(j), 1, vek = i, title = cell_title[2]))
+                    return_doors[0].append(cell1(int(j), 1, vek = i, title = 2))
                 if i == 1:
-                    return_doors[1].append(cell1(wid-1, int(j), vek = i, title = cell_title[2]))
+                    return_doors[1].append(cell1(wid-1, int(j), vek = i, title = 2))
                 if i == 2:
-                    return_doors[2].append(cell1(int(j), hid-1, vek = i, title = cell_title[2]))
+                    return_doors[2].append(cell1(int(j), hid-1, vek = i, title = 2))
                 if i == 3:
-                    return_doors[3].append(cell1(0, int(j), vek = i, title = cell_title[2]))
+                    return_doors[3].append(cell1(0, int(j), vek = i, title = 2))
 
         return return_doors
 
@@ -438,21 +449,24 @@ class map_cl:                                                                   
         vy = int(ay / math.fabs(ay))
         ax = math.fabs(ax)
         ay = math.fabs(ay)
-
+        self.rooms.append(Room("Room"))
         for i in range(point1.x,point2.x+1,vx):
             for j in range(point1.y,point2.y+1,vy):
                 #print(str(i) + " " + str(j))
-                self.new_cell(i,j,title=cell_title[1],v=1,type_s="Cavity")
+                self.new_cell(i,j,title = 1, v = 1, type_s="Room")
+                self.rooms[-1].add_cell(cell1(i,j,title = 1, vek = 1, type_s="Cavity"))
+
+
 
     def _room_gen(self, wid, hid, doors=[], start=cell1(0,0)):                  #создание комнаты с door
         for i in range(wid):
             for j in range(hid):
                 if ((i==0 or j==0) or 
                     (i==wid-1 or j==hid-1)):
-                    title1 = cell_title[0]
+                    title1 = 0
 
                 else:
-                    title1 = cell_title[1]
+                    title1 = 1
 
                 if self._if_emrt(start["x"]+i,start["y"]+j):
                     self.new_cell(start["x"]+i,start["y"]+j, title=title1,v=1)
@@ -482,54 +496,6 @@ class map_cl:                                                                   
     def _gen_point(self, kol_point, point_min, point_max):
         for i in range(kol_point):
             self._room_gen()
-
-def test_map():
-    cl1 = map_cl('room')
-    for i in range(100):
-        cl1.step()
-    cl1.step()
-    cl1.step()
-    cl1.step()
-    cl1.step()
-    cl1.step()
-    cl1.step()
-    
-    cl1.print_array()
-
-def test_map1():
-    cl1 = map_cl('room')
-    cl1._connect_corner([0,0],[4,16],0)
-    cl1._connect_corner([1,1],[4,15],0)
-    cl1.print_array()
-
-def test_map2(x,y):
-    cl1 = map_cl('room')
-    cl1._diagonal(cell1(0,0,v = 1,title = cell_title[1]),
-                  cell1(x,y,v = 1,title = cell_title[1]))
-    cl1.print_array()
-
-def test_map3(x,y):
-    cl1 = map_cl('room')
-    cl1._tunnels(cell1(0,0,1,cell_title[1]),cell1(x,y,1,cell_title[1]))
-    cl1.print_array()
-
-def test_map4(x,y):
-    cl1 = map_cl('room')
-    doors = [[],
-             [5],
-             [],
-             [2]]
-    cl1._room_gen(x,y,doors=doors)
-    #V1 print(len(cl1.cell_list))
-    cl1.print_array()
-
-
-'''print("Первый тест")
-test_map1()
-print("Второй тест")
-test_map2(4,16)
-print("Третий тест")
-test_map3(4,16)'''
 
 def create_partmap(wid=40,hid=20,
     doors=[
@@ -561,13 +527,14 @@ def create_partmap(wid=40,hid=20,
 
     cav_list = [l2[0]]
 
-    for i in range(8):
-        x1 = randint(2,wid-2)
-        y1 = randint(2,hid-2)
-        buf_cell = cell1(x1,y1,title=cell_title[1],vek=1)
+    for i in range(randint(3,10)):
+        randl = [randint(0, 5), randint(0, 5)]
+        x1 = randint(randl[0]+2,wid-randl[0]-2)
+        y1 = randint(randl[1]+2,hid-randl[1]-2)
+        buf_cell = cell1(x1,y1,title = 1, vek = 1)
         cav_list.append(buf_cell)
         cl1.append_cell(buf_cell)
-        cl1._cavity_gen(cell1(x1-1,y1-1),cell1(x1+1,y1+1))
+        cl1._cavity_gen(cell1(x1 - randl[0] // 2 , y1 - randl[1] // 2), cell1(x1 + 1, y1 + 1))
 
         fun_gen(cav_list[-2],cav_list[-1])
 
@@ -597,7 +564,7 @@ def create_partmap(wid=40,hid=20,
               #  vars(cl1.cell_list[near_cl[0]]),
                # len(near_cl))
 
-            print(cl1.cell_list[i].vek, buf_cell)
+            #print(cl1.cell_list[i].vek, buf_cell)
             kol = 0
 
             if (
@@ -606,7 +573,7 @@ def create_partmap(wid=40,hid=20,
                ):
                 buf_fl = False
                 for j in near_cl:
-                    print (j)
+                   # print (j)
                     if cl1.cell_list[j].type_s == "Door":
                         buf_fl = True
                         break
@@ -614,7 +581,7 @@ def create_partmap(wid=40,hid=20,
 
                 if cl1.cell_list[i].type_s == "Corridor" and not buf_fl:
                     if randint(0,1):
-                        cl1.cell_list[i].title = cell_title['door']
+                        cl1.cell_list[i].title = 2
                         cl1.cell_list[i].type_s = "Door"
     
                 
@@ -625,8 +592,9 @@ def create_partmap(wid=40,hid=20,
                     #        print("s " + str(vars(new_buf[0])))
                      #       cl1.cell_list[i].title = cell_title['door']```
 
-    cl1.print_array()
+    #cl1.print_array()
     return cl1
-
-for i in range(1):
-    cl1 = create_partmap()
+ 
+if __name__ == '__main__':
+    for i in range(1):
+        cl1 = create_partmap()
