@@ -7,22 +7,12 @@ def read_json(json_file_direction="obj.json"):
 	json_file = open(json_file_direction,"r")
 	return json.load(json_file)
 
-def json_obj_to_class(json_obj,atr):
-	return_class = Obj(json_obj["name"])
-	for i in atr:
-		if i in json_obj.keys():
-			return_class.__setattr__(i,json_obj[i])
-		
-		else:
-			return_class.__setattr__(i,None)
+def read_znach(obj1):
+	cl_ret = []
+	for i in obj1.keys():
+		cl_ret.append(Obj(i))
+		for j in obj1[i].keys():
+			cl_ret[-1].__setattr__(str(j),str(obj1[i][j]))
 
-	return return_class
+	return cl_ret
 
-def return_class(json_file_direction1,atr1):
-	obj_list_1 = read_json(json_file_direction1)
-	obj_list = dict()
-	for i in obj_list_1.keys():
-		cl = json_obj_to_class(obj_list_1[i],atr1)
-		obj_list.update({cl.name:cl})
-
-	return obj_list
